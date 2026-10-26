@@ -1,3 +1,4 @@
+import 'package:flas_/views/pages/deck_review_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -9,8 +10,16 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(body: Center(child: Text('Hello World!'))),
-    );
+    // return MaterialApp(
+    //   theme: ThemeData(
+    //     colorScheme: ColorScheme.fromSeed(
+    //       seedColor: Colors.cyan,
+    //       brightness: Brightness.dark,
+    //     ),
+    //   ),
+    //   home: const Scaffold(body: Center(child: Text('hello'))),
+    // );
+
+    return DeckReviewPage();
   }
 }
