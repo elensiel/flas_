@@ -1,53 +1,50 @@
 import 'package:flas_/data/deck.dart';
 import 'package:flas_/data/flashcard.dart';
-import 'package:flas_/views/pages/study_deck_page.dart';
+import 'package:flas_/pages/homepage/homepage.dart';
+import 'package:flas_/pages/studySession/study_session_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(ProviderScope(child: const MainApp()));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(home: StudyDeckPage(deck: dummyDeck));
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp(
+      // home: DeckBuilderPage(),
+      // home: StudySessionPage(deck: dummyDeck),
+      home: Homepage(),
+    );
   }
 }
 
-final dummyDeck = Deck(
+const dummyDeck = Deck(
   title: 'Flutter Basics',
-  cards: const [
+  description: 'Core Flutter and Dart concepts.',
+  cards: [
     Flashcard(
-      front: Text('What is a Widget?'),
-      back: Text('The basic building block of a Flutter UI.'),
+      front: 'What is a Widget?',
+      back: 'The basic building block of a Flutter UI.',
     ),
     Flashcard(
-      front: Text('StatelessWidget vs StatefulWidget?'),
-      back: Text(
-        'Stateless has no mutable state; Stateful holds state that can change via setState.',
-      ),
+      front: 'StatelessWidget vs StatefulWidget?',
+      back: 'Stateless has no mutable state; Stateful holds state that can change via setState().',
     ),
     Flashcard(
-      front: Text('What does setState do?'),
-      back: Text('Marks the widget as dirty and triggers a rebuild.'),
+      front: 'What does build() do?',
+      back: 'Describes the widget subtree for the current configuration and state.',
     ),
     Flashcard(
-      front: Text('What is BuildContext?'),
-      back: Text('A handle to the widget\'s location in the widget tree.'),
+      front: 'What is hot reload?',
+      back: 'Injects updated code into the running app while preserving state.',
     ),
     Flashcard(
-      front: Text('What is a Key used for?'),
-      back: Text(
-        'Preserving state and identity of widgets when the tree changes.',
-      ),
-    ),
-    Flashcard(
-      front: Text('What does Expanded do?'),
-      back: Text(
-        'Makes a child of Row/Column/Flex fill the remaining available space.',
-      ),
+      front: 'What is a Future in Dart?',
+      back: 'An object representing a value or error that will be available later.',
     ),
   ],
 );
