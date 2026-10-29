@@ -71,6 +71,16 @@ class DeckRepository {
     return id;
   }
 
+  Future<void> updateDeck(String id, {String? title, String? description}) =>
+      (db.update(db.decks)..where((d) => d.id.equals(id))).write(
+        DecksCompanion(
+          title: Value.absentIfNull(title),
+          description: Value.absentIfNull(description),
+          updatedAt: Value(_now),
+          dirty: const Value(true),
+        ),
+      );
+
   Future<void> updateCard(
     String id, {
     String? frontText,
@@ -132,13 +142,27 @@ class DeckRepository {
     }
   });
 
-  Future<List<Flashcard>> dirtyCards() =>
-      (db.select(db.cards)..where((c) => c.dirty.equals(true))).get();
-
   Future<List<Deck>> dirtyDecks() =>
       (db.select(db.decks)..where((d) => d.dirty.equals(true))).get();
 
-  // Map<String, Object?> wire(Insertable row, )
+  Future<List<Flashcard>> dirtyCards() =>
+      (db.select(db.cards)..where((c) => c.dirty.equals(true))).get();
+
+  Map<String, Object?> deckToWire(Deck c) => c.toJson()..remove('dirty');
+  Map<String, Object?> cardToWire(Flashcard c) => c.toJson()..remove('dirty');
+
+  Deck deckFromWire(Map<String, Object?> j) =>
+      Deck.fromJson({...j, 'dirty': false});
+
+  Flashcard cardFromWire(Map<String, Object?> j) =>
+      Flashcard.fromJson({...j, 'dirty': false});
+
+  Future<void> markDeckClean(Deck pushed) =>
+      (db.update(db.decks)..where(
+            (d) =>
+                d.id.equals(pushed.id) & d.updatedAt.equals(pushed.updatedAt),
+          ))
+          .write(const DecksCompanion(dirty: Value(false)));
 
   Future<void> markCardClean(Flashcard pushed) =>
       (db.update(db.cards)..where(
@@ -146,6 +170,16 @@ class DeckRepository {
                 c.id.equals(pushed.id) & c.updatedAt.equals(pushed.updatedAt),
           ))
           .write(const CardsCompanion(dirty: Value(false)));
+
+  Future<void> applyRemoteDeck(Deck remote) async {
+    final local = await (db.select(
+      db.decks,
+    )..where((c) => c.id.equals(remote.id))).getSingleOrNull();
+    if (local != null && local.updatedAt > remote.updatedAt) return;
+    await db
+        .into(db.decks)
+        .insertOnConflictUpdate(remote.copyWith(dirty: false));
+  }
 
   Future<void> applyRemoteCard(Flashcard remote) async {
     final local = await (db.select(
