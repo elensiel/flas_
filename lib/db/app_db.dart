@@ -13,6 +13,7 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 1;
 
+  @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
