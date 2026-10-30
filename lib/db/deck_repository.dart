@@ -71,6 +71,15 @@ class DeckRepository {
     return id;
   }
 
+  Future<Deck?> readDeck(String id) =>
+      (db.select(db.decks)..where((d) => d.id.equals(id))).getSingleOrNull();
+
+  Future<List<Flashcard>> readCards(String deckId) =>
+      (db.select(db.cards)
+            ..where((c) => c.id.equals(deckId) & c.deletedAt.isNull())
+            ..orderBy([(c) => OrderingTerm.asc(c.position)]))
+          .get();
+
   Future<void> updateDeck(String id, {String? title, String? description}) =>
       (db.update(db.decks)..where((d) => d.id.equals(id))).write(
         DecksCompanion(
