@@ -127,7 +127,7 @@ class DeckRepository {
     );
   });
 
-  Future<void> reorder(List<Flashcard> ordered) => db.batch((b) {
+  Future<void> reorderFlashcards(List<Flashcard> ordered) => db.batch((b) {
     for (int i = 0; i < ordered.length; i++) {
       if (ordered[i].position == i) continue;
       b.update(
