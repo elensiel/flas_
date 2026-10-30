@@ -1,0 +1,283 @@
+import 'package:flas_/common/clearable_text_field.dart';
+import 'package:flas_/common/constants.dart';
+import 'package:flas_/db/providers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class CardEntry {
+  CardEntry({
+    this.id,
+    String front = '',
+    String back = '',
+    this.frontImage,
+    this.backImage,
+  }) : termController = TextEditingController(text: front),
+       definitionController = TextEditingController(text: back);
+
+  final String? id;
+  final TextEditingController termController;
+  final TextEditingController definitionController;
+  String? frontImage, backImage;
+
+  void swap() {
+    final text = termController.text;
+    termController.text = definitionController.text;
+    definitionController.text = text;
+    final image = frontImage;
+    frontImage = backImage;
+    backImage = image;
+  }
+
+  void dispose() {
+    termController.dispose();
+    definitionController.dispose();
+  }
+}
+
+class DeckBuilderPage extends ConsumerStatefulWidget {
+  const new({super.key, required this.deckId});
+
+  final String? deckId;
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _DeckBuilderPageState();
+}
+
+class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _name = TextEditingController();
+  final _description = TextEditingController();
+  final _cards = <CardEntry>[];
+  bool _loading = true;
+  bool _saving = false;
+
+  bool get _isNewDeck => widget.deckId == null;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (_isNewDeck) {
+      _cards.add(CardEntry());
+      setState(() => _loading = false);
+      return;
+    }
+
+    final repo = ref.read(deckRepositoryProvider);
+    final deck = await repo.readDeck(widget.deckId!);
+    final cards = await repo.readCards(widget.deckId!);
+
+    if (!mounted) return;
+    setState(() {
+      _name.text = deck?.title ?? '';
+      _description.text = deck?.description ?? '';
+      _cards.addAll(
+        cards.map(
+          (c) => CardEntry(
+            id: c.id,
+            front: c.frontText,
+            frontImage: c.frontImage,
+            back: c.backText,
+            backImage: c.backImage,
+          ),
+        ),
+      );
+      _loading = false;
+    });
+  }
+
+  Future<void> _save() async {
+    if (_saving) return;
+    setState(() => _saving = true);
+
+    if (_isNewDeck) {
+      final repo = ref.read(deckRepositoryProvider);
+      final deck = await repo.createDeck(_name.text, _description.text);
+      for (int i = 0; i < _cards.length; i++) {
+        await repo.createCard(deck, position: i);
+      }
+    } else {
+      // todo -- update
+    }
+
+    if (mounted) Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _description.dispose();
+    for (final c in _cards) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  void _addCard() => setState(() => _cards.add(CardEntry()));
+
+  void _moveCard(int oldIndex, int newIndex) =>
+      setState(() => _cards.insert(newIndex, _cards.removeAt(oldIndex)));
+
+  void _removeCard(CardEntry c) {
+    setState(() => _cards.remove(c));
+    WidgetsBinding.instance.addPostFrameCallback((_) => c.dispose());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator.adaptive()),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Deck Builder'),
+        centerTitle: true,
+        actions: [
+          IconButton(onPressed: _saving ? null : _save, icon: Icon(Icons.save)),
+        ],
+      ),
+
+      body: Form(
+        key: _formKey,
+        child: ReorderableListView(
+          onReorderItem: _moveCard,
+          buildDefaultDragHandles: true,
+
+          header: Column(
+            children: [
+              _InfoSection(name: _name, description: _description),
+              Divider(thickness: 3),
+            ],
+          ),
+
+          children: [
+            for (int i = 0; i < _cards.length; i++)
+              _CardForm(
+                key: ObjectKey(_cards[i]),
+                card: _cards[i],
+                index: i,
+                onDelete: () => _removeCard(_cards[i]),
+              ),
+          ],
+        ),
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addCard,
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class _InfoSection extends StatelessWidget {
+  const _InfoSection({required this.name, required this.description});
+
+  final TextEditingController name;
+  final TextEditingController description;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(screenMargin),
+      child: Column(
+        spacing: 8,
+        children: [
+          ClearableTextField(
+            controller: name,
+            label: 'Name',
+            border: OutlineInputBorder(),
+          ),
+          ClearableTextField(
+            controller: description,
+            label: 'Description',
+            minLines: 1,
+            maxLines: 3,
+            border: OutlineInputBorder(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CardForm extends StatelessWidget {
+  const _CardForm({
+    super.key,
+    required this.card,
+    required this.index,
+    required this.onDelete,
+  });
+
+  final CardEntry card;
+  final int index;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: screenMargin)
+          .copyWith(top: screenMargin),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              CircleAvatar(child: Text('#${index + 1}')),
+              const Spacer(),
+              ReorderableDragStartListener(
+                index: index,
+                child: const Icon(Icons.drag_handle),
+              ),
+              PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert),
+                onSelected: (value) {
+                  switch (value) {
+                    case 'swap':
+                      card.swap();
+                      break;
+                    case 'delete':
+                      onDelete;
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'swap',
+                    child: ListTile(
+                      leading: Icon(Icons.swap_horiz),
+                      title: Text('Swap'),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: ListTile(
+                      leading: Icon(Icons.delete),
+                      title: Text('Delete'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          ClearableTextField(controller: card.termController, label: 'Term'),
+          ClearableTextField(
+            controller: card.definitionController,
+            label: 'Definition',
+          ),
+        ],
+      ),
+    );
+  }
+}
