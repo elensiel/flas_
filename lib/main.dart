@@ -1,3 +1,4 @@
+import 'package:flas_/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,6 +11,6 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp();
+    return MaterialApp(home: Homepage());
   }
 }
