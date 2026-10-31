@@ -76,7 +76,7 @@ class DeckRepository {
 
   Future<List<Flashcard>> readCards(String deckId) =>
       (db.select(db.cards)
-            ..where((c) => c.id.equals(deckId) & c.deletedAt.isNull())
+            ..where((c) => c.deckId.equals(deckId) & c.deletedAt.isNull())
             ..orderBy([(c) => OrderingTerm.asc(c.position)]))
           .get();
 

@@ -35,7 +35,7 @@ class CardEntry {
 }
 
 class DeckBuilderPage extends ConsumerStatefulWidget {
-  const new({super.key, required this.deckId});
+  const DeckBuilderPage({super.key, required this.deckId});
 
   final String? deckId;
 
@@ -91,14 +91,26 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
   }
 
   Future<void> _save() async {
-    if (_saving) return;
+    if (_saving || !_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
 
+    final repo = ref.read(deckRepositoryProvider);
+
     if (_isNewDeck) {
-      final repo = ref.read(deckRepositoryProvider);
-      final deck = await repo.createDeck(_name.text, _description.text);
+      final deck = await repo.createDeck(
+        _name.text.trim(),
+        _description.text.trim(),
+      );
       for (int i = 0; i < _cards.length; i++) {
-        await repo.createCard(deck, position: i);
+        final c = _cards[i];
+        await repo.createCard(
+          deck,
+          position: i,
+          frontText: c.termController.text,
+          frontImage: c.frontImage,
+          backText: c.termController.text,
+          backImage: c.backImage,
+        );
       }
     } else {
       // todo -- update
@@ -248,7 +260,7 @@ class _CardForm extends StatelessWidget {
                       card.swap();
                       break;
                     case 'delete':
-                      onDelete;
+                      onDelete();
                       break;
                   }
                 },
