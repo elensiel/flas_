@@ -62,7 +62,7 @@ class _DeckTile extends ConsumerWidget {
       onDismissed: (_) => ref.read(deckRepositoryProvider).deleteDeck(deck.id),
       background: Container(color: Colors.red),
       child: ListTile(
-        title: Text(deck.title),
+        title: Text(deck.name),
         subtitle: Text(deck.description),
         trailing: Text('$count cards'),
         onTap: () => Navigator.push(

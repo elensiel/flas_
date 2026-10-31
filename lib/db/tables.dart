@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 @DataClassName('Deck')
 class Decks extends Table {
   TextColumn get id => text()();
-  TextColumn get title => text()();
+  TextColumn get name => text()();
   TextColumn get description => text().withDefault(const Constant(''))();
   IntColumn get updatedAt => integer()();
   IntColumn get deletedAt => integer().nullable()();

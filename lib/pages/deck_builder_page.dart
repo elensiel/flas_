@@ -49,6 +49,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
   final _name = TextEditingController();
   final _description = TextEditingController();
   final _cards = <CardEntry>[];
+  final _removedCards = <CardEntry>[];
   bool _loading = true;
   bool _saving = false;
 
@@ -73,7 +74,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
 
     if (!mounted) return;
     setState(() {
-      _name.text = deck?.title ?? '';
+      _name.text = deck?.name ?? '';
       _description.text = deck?.description ?? '';
       _cards.addAll(
         cards.map(
@@ -94,9 +95,8 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
     if (_saving || !_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
 
-    final repo = ref.read(deckRepositoryProvider);
-
-    if (_isNewDeck) {
+    try {
+      final repo = ref.read(deckRepositoryProvider);
       final deck = await repo.createDeck(
         _name.text.trim(),
         _description.text.trim(),
@@ -106,17 +106,95 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
         await repo.createCard(
           deck,
           position: i,
-          frontText: c.termController.text,
-          frontImage: c.frontImage,
-          backText: c.termController.text,
-          backImage: c.backImage,
+          frontText: c.termController.text.trim(),
+          frontImage: c.frontImage?.trim(),
+          backText: c.termController.text.trim(),
+          backImage: c.backImage?.trim(),
         );
       }
-    } else {
-      // todo -- update
+      if (mounted) Navigator.pop(context);
+    } catch (_) {
+      if (mounted) setState(() => _saving = false);
+      rethrow;
     }
+  }
 
-    if (mounted) Navigator.pop(context);
+  void _update() async {
+    if (_saving || !_formKey.currentState!.validate()) return;
+    setState(() => _saving = true);
+
+    try {
+      final repo = ref.read(deckRepositoryProvider);
+
+      final deck = await repo.readDeck(widget.deckId!);
+      final name = _name.text.trim();
+      final description = _description.text.trim();
+      if (deck?.name != name || deck?.description != description) {
+        await repo.updateDeck(
+          widget.deckId!,
+          name: name,
+          description: description,
+        );
+      }
+
+      final oldCards = await repo.readCards(widget.deckId!);
+      for (int i = 0; i < _cards.length; i++) {
+        final c = _cards[i];
+        final term = c.termController.text.trim();
+        final definition = c.definitionController.text.trim();
+
+        if (c.id == null) {
+          await repo.createCard(
+            widget.deckId!,
+            position: i,
+            frontText: term,
+            // frontImage: null, // todo
+            backText: definition,
+            // backImage: null, // todo
+          );
+          continue;
+        }
+
+        final oldCard = {for (final c in oldCards) c.id: c}[c.id];
+        if (oldCard?.position != i ||
+            oldCard?.frontText != term ||
+            oldCard?.backText != definition) {
+          await repo.updateCard(
+            c.id!,
+            position: i,
+            frontText: term,
+            // frontImage: Value(null), // todo
+            backText: definition,
+            // backImage: Value(null), // todo
+          );
+          continue;
+        }
+      }
+
+      if (_removedCards.isNotEmpty) {
+        for (final c in _removedCards) {
+          if (c.id != null) await repo.deleteCard(c.id!);
+        }
+      }
+
+      if (mounted) Navigator.pop(context);
+    } catch (_) {
+      if (mounted) setState(() => _saving = false);
+      rethrow;
+    }
+  }
+
+  void _addCard() => setState(() => _cards.add(CardEntry()));
+
+  void _moveCard(int oldIndex, int newIndex) =>
+      setState(() => _cards.insert(newIndex, _cards.removeAt(oldIndex)));
+
+  void _removeCard(CardEntry c) {
+    setState(() {
+      _cards.remove(c);
+      _removedCards.add(c);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => c.dispose());
   }
 
   @override
@@ -127,16 +205,6 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
       c.dispose();
     }
     super.dispose();
-  }
-
-  void _addCard() => setState(() => _cards.add(CardEntry()));
-
-  void _moveCard(int oldIndex, int newIndex) =>
-      setState(() => _cards.insert(newIndex, _cards.removeAt(oldIndex)));
-
-  void _removeCard(CardEntry c) {
-    setState(() => _cards.remove(c));
-    WidgetsBinding.instance.addPostFrameCallback((_) => c.dispose());
   }
 
   @override
@@ -152,7 +220,14 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
         title: Text('Deck Builder'),
         centerTitle: true,
         actions: [
-          IconButton(onPressed: _saving ? null : _save, icon: Icon(Icons.save)),
+          IconButton(
+            onPressed: _saving
+                ? null
+                : widget.deckId == null
+                ? _save
+                : _update,
+            icon: Icon(Icons.save),
+          ),
         ],
       ),
 

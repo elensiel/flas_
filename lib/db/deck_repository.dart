@@ -30,14 +30,14 @@ class DeckRepository {
     return query.map((result) => result.read(count)!).watchSingle();
   }
 
-  Future<String> createDeck(String title, String description) async {
+  Future<String> createDeck(String name, String description) async {
     final id = _uuid.v4();
     await db
         .into(db.decks)
         .insert(
           DecksCompanion.insert(
             id: id,
-            title: title,
+            name: name,
             description: Value(description),
             updatedAt: _now,
           ),
@@ -80,10 +80,10 @@ class DeckRepository {
             ..orderBy([(c) => OrderingTerm.asc(c.position)]))
           .get();
 
-  Future<void> updateDeck(String id, {String? title, String? description}) =>
+  Future<void> updateDeck(String id, {String? name, String? description}) =>
       (db.update(db.decks)..where((d) => d.id.equals(id))).write(
         DecksCompanion(
-          title: Value.absentIfNull(title),
+          name: Value.absentIfNull(name),
           description: Value.absentIfNull(description),
           updatedAt: Value(_now),
           dirty: const Value(true),

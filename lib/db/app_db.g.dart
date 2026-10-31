@@ -17,10 +17,10 @@ class $DecksTable extends Decks with TableInfo<$DecksTable, Deck> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-    'title',
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -76,7 +76,7 @@ class $DecksTable extends Decks with TableInfo<$DecksTable, Deck> {
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    title,
+    name,
     description,
     updatedAt,
     deletedAt,
@@ -99,13 +99,13 @@ class $DecksTable extends Decks with TableInfo<$DecksTable, Deck> {
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('title')) {
+    if (data.containsKey('name')) {
       context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
       );
     } else if (isInserting) {
-      context.missing(_titleMeta);
+      context.missing(_nameMeta);
     }
     if (data.containsKey('description')) {
       context.handle(
@@ -149,9 +149,9 @@ class $DecksTable extends Decks with TableInfo<$DecksTable, Deck> {
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      title: attachedDatabase.typeMapping.read(
+      name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}title'],
+        data['${effectivePrefix}name'],
       )!,
       description: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -180,14 +180,14 @@ class $DecksTable extends Decks with TableInfo<$DecksTable, Deck> {
 
 class Deck extends DataClass implements Insertable<Deck> {
   final String id;
-  final String title;
+  final String name;
   final String description;
   final int updatedAt;
   final int? deletedAt;
   final bool dirty;
   const Deck({
     required this.id,
-    required this.title,
+    required this.name,
     required this.description,
     required this.updatedAt,
     this.deletedAt,
@@ -197,7 +197,7 @@ class Deck extends DataClass implements Insertable<Deck> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['title'] = Variable<String>(title);
+    map['name'] = Variable<String>(name);
     map['description'] = Variable<String>(description);
     map['updated_at'] = Variable<int>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -210,7 +210,7 @@ class Deck extends DataClass implements Insertable<Deck> {
   DecksCompanion toCompanion(bool nullToAbsent) {
     return DecksCompanion(
       id: Value(id),
-      title: Value(title),
+      name: Value(name),
       description: Value(description),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -227,7 +227,7 @@ class Deck extends DataClass implements Insertable<Deck> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Deck(
       id: serializer.fromJson<String>(json['id']),
-      title: serializer.fromJson<String>(json['title']),
+      name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String>(json['description']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       deletedAt: serializer.fromJson<int?>(json['deletedAt']),
@@ -239,7 +239,7 @@ class Deck extends DataClass implements Insertable<Deck> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'title': serializer.toJson<String>(title),
+      'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String>(description),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'deletedAt': serializer.toJson<int?>(deletedAt),
@@ -249,14 +249,14 @@ class Deck extends DataClass implements Insertable<Deck> {
 
   Deck copyWith({
     String? id,
-    String? title,
+    String? name,
     String? description,
     int? updatedAt,
     Value<int?> deletedAt = const Value.absent(),
     bool? dirty,
   }) => Deck(
     id: id ?? this.id,
-    title: title ?? this.title,
+    name: name ?? this.name,
     description: description ?? this.description,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -265,7 +265,7 @@ class Deck extends DataClass implements Insertable<Deck> {
   Deck copyWithCompanion(DecksCompanion data) {
     return Deck(
       id: data.id.present ? data.id.value : this.id,
-      title: data.title.present ? data.title.value : this.title,
+      name: data.name.present ? data.name.value : this.name,
       description: data.description.present
           ? data.description.value
           : this.description,
@@ -279,7 +279,7 @@ class Deck extends DataClass implements Insertable<Deck> {
   String toString() {
     return (StringBuffer('Deck(')
           ..write('id: $id, ')
-          ..write('title: $title, ')
+          ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -290,13 +290,13 @@ class Deck extends DataClass implements Insertable<Deck> {
 
   @override
   int get hashCode =>
-      Object.hash(id, title, description, updatedAt, deletedAt, dirty);
+      Object.hash(id, name, description, updatedAt, deletedAt, dirty);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Deck &&
           other.id == this.id &&
-          other.title == this.title &&
+          other.name == this.name &&
           other.description == this.description &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -305,7 +305,7 @@ class Deck extends DataClass implements Insertable<Deck> {
 
 class DecksCompanion extends UpdateCompanion<Deck> {
   final Value<String> id;
-  final Value<String> title;
+  final Value<String> name;
   final Value<String> description;
   final Value<int> updatedAt;
   final Value<int?> deletedAt;
@@ -313,7 +313,7 @@ class DecksCompanion extends UpdateCompanion<Deck> {
   final Value<int> rowid;
   const DecksCompanion({
     this.id = const Value.absent(),
-    this.title = const Value.absent(),
+    this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -322,18 +322,18 @@ class DecksCompanion extends UpdateCompanion<Deck> {
   });
   DecksCompanion.insert({
     required String id,
-    required String title,
+    required String name,
     this.description = const Value.absent(),
     required int updatedAt,
     this.deletedAt = const Value.absent(),
     this.dirty = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       title = Value(title),
+       name = Value(name),
        updatedAt = Value(updatedAt);
   static Insertable<Deck> custom({
     Expression<String>? id,
-    Expression<String>? title,
+    Expression<String>? name,
     Expression<String>? description,
     Expression<int>? updatedAt,
     Expression<int>? deletedAt,
@@ -342,7 +342,7 @@ class DecksCompanion extends UpdateCompanion<Deck> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (title != null) 'title': title,
+      if (name != null) 'name': name,
       if (description != null) 'description': description,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -353,7 +353,7 @@ class DecksCompanion extends UpdateCompanion<Deck> {
 
   DecksCompanion copyWith({
     Value<String>? id,
-    Value<String>? title,
+    Value<String>? name,
     Value<String>? description,
     Value<int>? updatedAt,
     Value<int?>? deletedAt,
@@ -362,7 +362,7 @@ class DecksCompanion extends UpdateCompanion<Deck> {
   }) {
     return DecksCompanion(
       id: id ?? this.id,
-      title: title ?? this.title,
+      name: name ?? this.name,
       description: description ?? this.description,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -377,8 +377,8 @@ class DecksCompanion extends UpdateCompanion<Deck> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
     }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
@@ -402,7 +402,7 @@ class DecksCompanion extends UpdateCompanion<Deck> {
   String toString() {
     return (StringBuffer('DecksCompanion(')
           ..write('id: $id, ')
-          ..write('title: $title, ')
+          ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -1527,7 +1527,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 
 typedef $$DecksTableCreateCompanionBuilder = DecksCompanion Function({
   required String id,
-  required String title,
+  required String name,
   Value<String> description,
   required int updatedAt,
   Value<int?> deletedAt,
@@ -1536,7 +1536,7 @@ typedef $$DecksTableCreateCompanionBuilder = DecksCompanion Function({
 });
 typedef $$DecksTableUpdateCompanionBuilder = DecksCompanion Function({
   Value<String> id,
-  Value<String> title,
+  Value<String> name,
   Value<String> description,
   Value<int> updatedAt,
   Value<int?> deletedAt,
@@ -1581,8 +1581,8 @@ class $$DecksTableFilterComposer extends Composer<_$AppDatabase, $DecksTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1646,8 +1646,8 @@ class $$DecksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1684,8 +1684,8 @@ class $$DecksTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
 
   GeneratedColumn<String> get description => $composableBuilder(
     column: $table.description,
@@ -1756,7 +1756,7 @@ class $$DecksTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> title = const Value.absent(),
+                Value<String> name = const Value.absent(),
                 Value<String> description = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<int?> deletedAt = const Value.absent(),
@@ -1764,7 +1764,7 @@ class $$DecksTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => DecksCompanion(
                 id: id,
-                title: title,
+                name: name,
                 description: description,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -1774,7 +1774,7 @@ class $$DecksTableTableManager
           createCompanionCallback:
               ({
                 required String id,
-                required String title,
+                required String name,
                 Value<String> description = const Value.absent(),
                 required int updatedAt,
                 Value<int?> deletedAt = const Value.absent(),
@@ -1782,7 +1782,7 @@ class $$DecksTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => DecksCompanion.insert(
                 id: id,
-                title: title,
+                name: name,
                 description: description,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
