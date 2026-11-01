@@ -1,5 +1,7 @@
+import 'package:drift/drift.dart' hide Column;
 import 'package:flas_/common/clearable_text_field.dart';
 import 'package:flas_/common/constants.dart';
+import 'package:flas_/common/image_slot.dart';
 import 'package:flas_/db/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -148,9 +150,9 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
             widget.deckId!,
             position: i,
             frontText: term,
-            // frontImage: null, // todo
+            frontImage: c.frontImage?.trim(),
             backText: definition,
-            // backImage: null, // todo
+            backImage: c.backImage?.trim(),
           );
           continue;
         }
@@ -158,14 +160,16 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
         final oldCard = {for (final c in oldCards) c.id: c}[c.id];
         if (oldCard?.position != i ||
             oldCard?.frontText != term ||
-            oldCard?.backText != definition) {
+            oldCard?.frontImage != c.frontImage ||
+            oldCard?.backText != definition ||
+            oldCard?.backImage != c.backImage) {
           await repo.updateCard(
             c.id!,
             position: i,
             frontText: term,
-            // frontImage: Value(null), // todo
+            frontImage: Value(c.frontImage), // todo
             backText: definition,
-            // backImage: Value(null), // todo
+            backImage: Value(c.backImage), // todo
           );
           continue;
         }
@@ -295,7 +299,7 @@ class _InfoSection extends StatelessWidget {
   }
 }
 
-class _CardForm extends StatelessWidget {
+class _CardForm extends StatefulWidget {
   const _CardForm({
     super.key,
     required this.card,
@@ -308,6 +312,11 @@ class _CardForm extends StatelessWidget {
   final VoidCallback onDelete;
 
   @override
+  State<_CardForm> createState() => _CardFormState();
+}
+
+class _CardFormState extends State<_CardForm> {
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: screenMargin)
@@ -318,13 +327,14 @@ class _CardForm extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
+        spacing: 8,
         children: [
           Row(
             children: [
-              CircleAvatar(child: Text('#${index + 1}')),
+              CircleAvatar(child: Text('#${widget.index + 1}')),
               const Spacer(),
               ReorderableDragStartListener(
-                index: index,
+                index: widget.index,
                 child: const Icon(Icons.drag_handle),
               ),
               PopupMenuButton<String>(
@@ -332,10 +342,10 @@ class _CardForm extends StatelessWidget {
                 onSelected: (value) {
                   switch (value) {
                     case 'swap':
-                      card.swap();
+                      widget.card.swap();
                       break;
                     case 'delete':
-                      onDelete();
+                      widget.onDelete();
                       break;
                   }
                 },
@@ -358,9 +368,20 @@ class _CardForm extends StatelessWidget {
               ),
             ],
           ),
-          ClearableTextField(controller: card.termController, label: 'Term'),
+          ImageSlot(
+            hash: widget.card.frontImage,
+            onChanged: (h) => setState(() => widget.card.frontImage = h),
+          ),
           ClearableTextField(
-            controller: card.definitionController,
+            controller: widget.card.termController,
+            label: 'Term',
+          ),
+          ImageSlot(
+            hash: widget.card.backImage,
+            onChanged: (h) => setState(() => widget.card.backImage = h),
+          ),
+          ClearableTextField(
+            controller: widget.card.definitionController,
             label: 'Definition',
           ),
         ],

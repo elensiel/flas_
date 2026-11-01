@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraLibraryUsageDescription</key>
+	<string>Take photos for flashcards</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Pick images for flashcards</string>
 </dict>
 </plist>
