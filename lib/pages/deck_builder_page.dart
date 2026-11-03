@@ -338,34 +338,34 @@ class _CardFormState extends State<_CardForm> {
               index: widget.index,
               child: const Icon(Icons.drag_handle),
             ),
-            PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert),
-              onSelected: (value) {
-                switch (value) {
-                  case 'swap':
-                    widget.card.swap();
-                    break;
-                  case 'delete':
-                    widget.onDelete();
-                    break;
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'swap',
-                  child: ListTile(
-                    leading: Icon(Icons.swap_horiz),
-                    title: Text('Swap'),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: ListTile(
-                    leading: Icon(Icons.delete),
-                    title: Text('Delete'),
-                  ),
-                ),
-              ],
+          ],
+        ),
+        trailing: PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert),
+          onSelected: (value) {
+            switch (value) {
+              case 'swap':
+                widget.card.swap();
+                break;
+              case 'delete':
+                widget.onDelete();
+                break;
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'swap',
+              child: ListTile(
+                leading: Icon(Icons.swap_horiz),
+                title: Text('Swap'),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'delete',
+              child: ListTile(
+                leading: Icon(Icons.delete),
+                title: Text('Delete'),
+              ),
             ),
           ],
         ),
@@ -378,6 +378,7 @@ class _CardFormState extends State<_CardForm> {
             controller: widget.card.termController,
             label: 'Term',
           ),
+          SizedBox(height: 4),
           ImageSlot(
             hash: widget.card.backImage,
             onChanged: (h) => setState(() => widget.card.backImage = h),

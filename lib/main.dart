@@ -11,6 +11,6 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(home: Homepage());
+    return MaterialApp(themeMode: .system, home: Homepage());
   }
 }

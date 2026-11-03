@@ -82,7 +82,7 @@ class ImageSlot extends ConsumerWidget {
             borderRadius: .circular(8),
             child: Image.file(file, fit: .cover),
           ),
-        IconButton(
+        IconButton.filledTonal(
           onPressed: () => _pick(context, ref),
           icon: Icon(Icons.add_photo_alternate),
         ),
