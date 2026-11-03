@@ -3,6 +3,7 @@ import 'package:flas_/common/clearable_text_field.dart';
 import 'package:flas_/common/constants.dart';
 import 'package:flas_/common/image_slot.dart';
 import 'package:flas_/db/providers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -321,53 +322,54 @@ class _CardFormState extends State<_CardForm> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: screenMargin)
           .copyWith(top: screenMargin),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         border: Border.all(),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        spacing: 8,
+      child: ExpansionTile(
+        controlAffinity: .leading,
+        initiallyExpanded: true,
+        childrenPadding: .all(16),
+        title: Row(
+          children: [
+            CircleAvatar(child: Text('#${widget.index + 1}')),
+            const Spacer(),
+            ReorderableDragStartListener(
+              index: widget.index,
+              child: const Icon(Icons.drag_handle),
+            ),
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert),
+              onSelected: (value) {
+                switch (value) {
+                  case 'swap':
+                    widget.card.swap();
+                    break;
+                  case 'delete':
+                    widget.onDelete();
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'swap',
+                  child: ListTile(
+                    leading: Icon(Icons.swap_horiz),
+                    title: Text('Swap'),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: ListTile(
+                    leading: Icon(Icons.delete),
+                    title: Text('Delete'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
         children: [
-          Row(
-            children: [
-              CircleAvatar(child: Text('#${widget.index + 1}')),
-              const Spacer(),
-              ReorderableDragStartListener(
-                index: widget.index,
-                child: const Icon(Icons.drag_handle),
-              ),
-              PopupMenuButton<String>(
-                icon: Icon(Icons.more_vert),
-                onSelected: (value) {
-                  switch (value) {
-                    case 'swap':
-                      widget.card.swap();
-                      break;
-                    case 'delete':
-                      widget.onDelete();
-                      break;
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'swap',
-                    child: ListTile(
-                      leading: Icon(Icons.swap_horiz),
-                      title: Text('Swap'),
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: ListTile(
-                      leading: Icon(Icons.delete),
-                      title: Text('Delete'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
           ImageSlot(
             hash: widget.card.frontImage,
             onChanged: (h) => setState(() => widget.card.frontImage = h),
