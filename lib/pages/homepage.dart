@@ -2,6 +2,7 @@ import 'package:flas_/common/constants.dart';
 import 'package:flas_/db/app_db.dart';
 import 'package:flas_/db/providers.dart';
 import 'package:flas_/pages/deck_builder_page.dart';
+import 'package:flas_/pages/study_session_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,15 +15,15 @@ class Homepage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('flas_'),
+        title: const Text('flas_'),
         actions: [
-          IconButton(onPressed: null, icon: Icon(Icons.search)),
+          const IconButton(onPressed: null, icon: Icon(Icons.search)),
           IconButton(
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => DeckBuilderPage(deckId: null)),
             ),
-            icon: Icon(Icons.create),
+            icon: const Icon(Icons.create),
           ),
         ],
       ),
@@ -42,8 +43,8 @@ class Homepage extends ConsumerWidget {
 
       bottomNavigationBar: NavigationBar(
         destinations: [
-          NavigationDestination(icon: Icon(Icons.style), label: 'Decks'),
-          NavigationDestination(icon: Icon(Icons.menu), label: 'Menu'),
+          const NavigationDestination(icon: Icon(Icons.style), label: 'Decks'),
+          const NavigationDestination(icon: Icon(Icons.menu), label: 'Menu'),
         ],
       ),
     );
@@ -88,12 +89,22 @@ class _DeckTile extends ConsumerWidget {
       child: ListTile(
         title: Text(
           deck.name,
-          style: TextStyle(fontSize: 20, fontWeight: .bold),
+          style: TextStyle(
+            fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,
+            fontWeight: .bold,
+          ),
         ),
-        subtitle: Text(deck.description),
+        subtitle: Text(
+          deck.description,
+          style: TextStyle(
+            fontSize: Theme.of(context).textTheme.titleSmall?.fontSize,
+          ),
+        ),
         trailing: Text(
           '$count ${count == 1 ? 'card' : 'cards'}',
-          style: TextStyle(fontSize: 16),
+          style: TextStyle(
+            fontSize: Theme.of(context).textTheme.titleSmall?.fontSize,
+          ),
         ),
         onTap: () => showModalBottomSheet(
           context: context,
@@ -103,19 +114,19 @@ class _DeckTile extends ConsumerWidget {
               mainAxisSize: .min,
               children: [
                 ListTile(
-                  title: Text('Study'),
+                  title: const Text('Study'),
                   onTap: () {
                     Navigator.pop(sheetContext);
-                    //   Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (_) => DeckBuilderPage(deckId: deck.id),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => StudySessionPage(deck: deck),
+                      ),
+                    );
                   },
                 ),
                 ListTile(
-                  title: Text('Edit'),
+                  title: const Text('Edit'),
                   onTap: () {
                     Navigator.pop(sheetContext);
                     Navigator.push(
@@ -127,7 +138,7 @@ class _DeckTile extends ConsumerWidget {
                   },
                 ),
                 ListTile(
-                  title: Text('Delete'),
+                  title: const Text('Delete'),
                   onTap: () {
                     Navigator.pop(sheetContext);
                     confirmDelete(context, ref);

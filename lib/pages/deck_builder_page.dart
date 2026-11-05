@@ -3,7 +3,6 @@ import 'package:flas_/common/clearable_text_field.dart';
 import 'package:flas_/common/constants.dart';
 import 'package:flas_/common/image_slot.dart';
 import 'package:flas_/db/providers.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -222,7 +221,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Deck Builder'),
+        title: const Text('Deck Builder'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -231,7 +230,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
                 : widget.deckId == null
                 ? _save
                 : _update,
-            icon: Icon(Icons.save),
+            icon: const Icon(Icons.save),
           ),
         ],
       ),
@@ -245,7 +244,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
           header: Column(
             children: [
               _InfoSection(name: _name, description: _description),
-              Divider(thickness: 3),
+              const Divider(thickness: 3),
             ],
           ),
 
@@ -263,7 +262,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: _addCard,
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -278,21 +277,21 @@ class _InfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(screenMargin),
+      padding: .all(screenMargin),
       child: Column(
         spacing: 8,
         children: [
           ClearableTextField(
             controller: name,
             label: 'Name',
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
           ClearableTextField(
             controller: description,
             label: 'Description',
             minLines: 1,
             maxLines: 3,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
         ],
       ),
@@ -322,10 +321,7 @@ class _CardFormState extends State<_CardForm> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: screenMargin)
           .copyWith(top: screenMargin),
-      decoration: BoxDecoration(
-        border: Border.all(),
-        borderRadius: BorderRadius.circular(8),
-      ),
+      decoration: BoxDecoration(border: .all(), borderRadius: .circular(8)),
       child: ExpansionTile(
         controlAffinity: .leading,
         initiallyExpanded: true,
@@ -353,14 +349,14 @@ class _CardFormState extends State<_CardForm> {
             }
           },
           itemBuilder: (context) => [
-            PopupMenuItem(
+            const PopupMenuItem(
               value: 'swap',
               child: ListTile(
                 leading: Icon(Icons.swap_horiz),
                 title: Text('Swap'),
               ),
             ),
-            PopupMenuItem(
+            const PopupMenuItem(
               value: 'delete',
               child: ListTile(
                 leading: Icon(Icons.delete),
@@ -378,7 +374,7 @@ class _CardFormState extends State<_CardForm> {
             controller: widget.card.termController,
             label: 'Term',
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           ImageSlot(
             hash: widget.card.backImage,
             onChanged: (h) => setState(() => widget.card.backImage = h),
