@@ -30,7 +30,33 @@ class Homepage extends ConsumerWidget {
 
       body: decks.when(
         data: (list) => list.isEmpty
-            ? const Center(child: Text('No decks yet'))
+            ? Center(
+                child: Column(
+                  mainAxisSize: .min,
+                  spacing: 12,
+                  children: [
+                    Icon(
+                      Icons.style,
+                      size: 56,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                    Text(
+                      'No decks yet',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    FilledButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DeckBuilderPage(deckId: null),
+                        ),
+                      ),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Create deck'),
+                    ),
+                  ],
+                ),
+              )
             : ListView.separated(
                 padding: .all(screenMargin),
                 itemCount: list.length,
@@ -41,11 +67,21 @@ class Homepage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
       ),
 
-      bottomNavigationBar: NavigationBar(
-        destinations: [
-          const NavigationDestination(icon: Icon(Icons.style), label: 'Decks'),
-          const NavigationDestination(icon: Icon(Icons.menu), label: 'Menu'),
-        ],
+      bottomNavigationBar: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
+        ),
+        child: NavigationBar(
+          selectedIndex: 0,
+          destinations: const [
+            NavigationDestination(icon: Icon(Icons.style), label: 'Decks'),
+            NavigationDestination(icon: Icon(Icons.menu), label: 'Menu'),
+          ],
+        ),
       ),
     );
   }
@@ -55,7 +91,7 @@ class _DeckTile extends ConsumerWidget {
   const _DeckTile({required this.deck});
   final Deck deck;
 
-  Future<void> confirmDelete(BuildContext context, WidgetRef ref) async =>
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async =>
       showAdaptiveDialog(
         context: context,
         builder: (dialogContext) => AlertDialog.adaptive(
@@ -80,72 +116,110 @@ class _DeckTile extends ConsumerWidget {
         ),
       );
 
+  void _showActions(BuildContext context, WidgetRef ref) {
+    final s = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: .min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.play_arrow),
+              title: const Text('Study'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => StudySessionPage(deck: deck),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DeckBuilderPage(deckId: deck.id),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete, color: s.error),
+              title: Text('Delete', style: TextStyle(color: s.error)),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                _confirmDelete(context, ref);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final count = ref.watch(cardCountProvider(deck.id)).value ?? 0;
+    final theme = Theme.of(context);
+    final s = theme.colorScheme;
 
-    return Container(
-      decoration: BoxDecoration(border: .all(), borderRadius: .circular(8)),
-      child: ListTile(
-        title: Text(
-          deck.name,
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,
-            fontWeight: .bold,
-          ),
-        ),
-        subtitle: Text(
-          deck.description,
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleSmall?.fontSize,
-          ),
-        ),
-        trailing: Text(
-          '$count ${count == 1 ? 'card' : 'cards'}',
-          style: TextStyle(
-            fontSize: Theme.of(context).textTheme.titleSmall?.fontSize,
-          ),
-        ),
-        onTap: () => showModalBottomSheet(
-          context: context,
-          showDragHandle: true,
-          builder: (sheetContext) => SafeArea(
-            child: Column(
-              mainAxisSize: .min,
-              children: [
-                ListTile(
-                  title: const Text('Study'),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => StudySessionPage(deck: deck),
+    return Material(
+      clipBehavior: .antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: .circular(16),
+        side: BorderSide(color: s.outline, width: 1.5),
+      ),
+      child: InkWell(
+        onTap: () => _showActions(context, ref),
+        child: Padding(
+          padding: const .all(16),
+          child: Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: .start,
+                  spacing: 4,
+                  children: [
+                    Text(
+                      deck.name,
+                      maxLines: 1,
+                      overflow: .ellipsis,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: .w600,
                       ),
-                    );
-                  },
-                ),
-                ListTile(
-                  title: const Text('Edit'),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DeckBuilderPage(deckId: deck.id),
+                    ),
+                    Text(
+                      deck.description,
+                      maxLines: 2,
+                      overflow: .ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: s.onSurfaceVariant,
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
-                ListTile(
-                  title: const Text('Delete'),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    confirmDelete(context, ref);
-                  },
+              ),
+              Container(
+                padding: const .symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  border: .all(color: s.outlineVariant, width: 1.5),
+                  borderRadius: .circular(20),
                 ),
-              ],
-            ),
+                child: Text(
+                  '$count ${count == 1 ? 'card' : 'cards'}',
+                  style: theme.textTheme.labelLarge,
+                ),
+              ),
+            ],
           ),
         ),
       ),

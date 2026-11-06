@@ -110,7 +110,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
           position: i,
           frontText: c.termController.text.trim(),
           frontImage: c.frontImage?.trim(),
-          backText: c.termController.text.trim(),
+          backText: c.definitionController.text.trim(),
           backImage: c.backImage?.trim(),
         );
       }
@@ -244,7 +244,14 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
           header: Column(
             children: [
               _InfoSection(name: _name, description: _description),
-              const Divider(thickness: 3),
+              Divider(thickness: 3),
+              // Padding(
+              //   padding: .symmetric(horizontal: screenMargin),
+              //   child: Text(
+              //     'Cards',
+              //     style: Theme.of(context).textTheme.titleLarge,
+              //   ),
+              // ),
             ],
           ),
 
@@ -281,17 +288,12 @@ class _InfoSection extends StatelessWidget {
       child: Column(
         spacing: 8,
         children: [
-          ClearableTextField(
-            controller: name,
-            label: 'Name',
-            border: const OutlineInputBorder(),
-          ),
+          ClearableTextField(controller: name, label: 'Name'),
           ClearableTextField(
             controller: description,
             label: 'Description',
             minLines: 1,
             maxLines: 3,
-            border: const OutlineInputBorder(),
           ),
         ],
       ),
@@ -318,17 +320,28 @@ class _CardForm extends StatefulWidget {
 class _CardFormState extends State<_CardForm> {
   @override
   Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
+
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: screenMargin)
-          .copyWith(top: screenMargin),
-      decoration: BoxDecoration(border: .all(), borderRadius: .circular(8)),
+      margin: .only(left: screenMargin, right: screenMargin, top: screenMargin),
+      decoration: BoxDecoration(
+        color: s.surfaceContainerLow,
+        border: .all(color: s.outline, width: 1.5),
+        borderRadius: .circular(16),
+      ),
+      clipBehavior: .antiAlias,
       child: ExpansionTile(
+        shape: const Border(),
+        collapsedShape: const Border(),
         controlAffinity: .leading,
         initiallyExpanded: true,
         childrenPadding: .all(16),
         title: Row(
           children: [
-            CircleAvatar(child: Text('#${widget.index + 1}')),
+            Text(
+              'Card ${widget.index + 1}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const Spacer(),
             ReorderableDragStartListener(
               index: widget.index,
@@ -366,25 +379,42 @@ class _CardFormState extends State<_CardForm> {
           ],
         ),
         children: [
-          ImageSlot(
-            hash: widget.card.frontImage,
-            onChanged: (h) => setState(() => widget.card.frontImage = h),
+          Column(
+            spacing: 12,
+            crossAxisAlignment: .stretch,
+            children: [
+              ImageSlot(
+                hash: widget.card.frontImage,
+                heroTag: (widget.card, 'front'),
+                onChanged: (h) => setState(() => widget.card.frontImage = h),
+              ),
+              _textField(widget.card.termController, 'Term'),
+            ],
           ),
-          ClearableTextField(
-            controller: widget.card.termController,
-            label: 'Term',
-          ),
-          const SizedBox(height: 4),
-          ImageSlot(
-            hash: widget.card.backImage,
-            onChanged: (h) => setState(() => widget.card.backImage = h),
-          ),
-          ClearableTextField(
-            controller: widget.card.definitionController,
-            label: 'Definition',
+          const Padding(padding: .symmetric(vertical: 16), child: Divider()),
+          Column(
+            spacing: 12,
+            crossAxisAlignment: .stretch,
+            children: [
+              ImageSlot(
+                hash: widget.card.backImage,
+                heroTag: (widget.card, 'back'),
+                onChanged: (h) => setState(() => widget.card.backImage = h),
+              ),
+              _textField(widget.card.definitionController, 'Definition'),
+            ],
           ),
         ],
       ),
     );
   }
+
+  Widget _textField(TextEditingController controller, String label) =>
+      ClearableTextField(
+        controller: controller,
+        label: label,
+        textAlign: .justify,
+        minLines: 1,
+        maxLines: 5,
+      );
 }

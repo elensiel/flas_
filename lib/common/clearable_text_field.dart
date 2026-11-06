@@ -11,6 +11,7 @@ class ClearableTextField extends StatelessWidget {
     this.minLines,
     this.maxLines,
     this.border,
+    this.textAlign = .start,
   });
 
   final TextEditingController controller;
@@ -18,6 +19,7 @@ class ClearableTextField extends StatelessWidget {
   final int? minLines;
   final int? maxLines;
   final InputBorder? border;
+  final TextAlign textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +30,15 @@ class ClearableTextField extends StatelessWidget {
         validator: validator,
         minLines: minLines,
         maxLines: maxLines,
+        textAlign: textAlign,
         decoration: InputDecoration(
           labelText: label,
           border: border,
           suffixIcon: value.text.isNotEmpty
-              ? IconButton(onPressed: controller.clear, icon: Icon(Icons.clear))
+              ? IconButton(
+                  onPressed: controller.clear,
+                  icon: const Icon(Icons.clear),
+                )
               : null,
         ),
       ),
