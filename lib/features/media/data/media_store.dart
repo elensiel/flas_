@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
-import 'package:flas_/db/app_db.dart';
+import 'package:flas_/core/database/app_db.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 

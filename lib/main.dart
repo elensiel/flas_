@@ -1,22 +1,8 @@
-import 'package:flas_/config/app_theme.dart';
-import 'package:flas_/pages/homepage.dart';
+import 'package:flas_/app/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized;
   runApp(ProviderScope(child: const MainApp()));
-}
-
-class MainApp extends ConsumerWidget {
-  const MainApp({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: .system,
-      home: Homepage(),
-    );
-  }
 }

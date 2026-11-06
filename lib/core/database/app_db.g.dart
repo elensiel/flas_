@@ -1498,9 +1498,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CardsTable cards = $CardsTable(this);
   late final $MediaFilesTable mediaFiles = $MediaFilesTable(this);
   late final $SyncStateTable syncState = $SyncStateTable(this);
+  late final Index idxDeckDirty = Index(
+    'idx_deck_dirty',
+    'CREATE INDEX idx_deck_dirty ON decks (dirty)',
+  );
   late final Index idxCardsDeck = Index(
     'idx_cards_deck',
     'CREATE INDEX idx_cards_deck ON cards (deck_id, position)',
+  );
+  late final Index idxCardsDirty = Index(
+    'idx_cards_dirty',
+    'CREATE INDEX idx_cards_dirty ON cards (dirty)',
   );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -1511,7 +1519,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cards,
     mediaFiles,
     syncState,
+    idxDeckDirty,
     idxCardsDeck,
+    idxCardsDirty,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([

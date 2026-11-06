@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@TableIndex(name: 'idx_deck_dirty', columns: {#dirty})
 @DataClassName('Deck')
 class Decks extends Table {
   TextColumn get id => text()();
@@ -14,6 +15,7 @@ class Decks extends Table {
 }
 
 @TableIndex(name: 'idx_cards_deck', columns: {#deckId, #position})
+@TableIndex(name: 'idx_cards_dirty', columns: {#dirty})
 @DataClassName('Flashcard')
 class Cards extends Table {
   TextColumn get id => text()();

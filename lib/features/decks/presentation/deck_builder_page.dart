@@ -1,40 +1,10 @@
 import 'package:drift/drift.dart' hide Column;
-import 'package:flas_/common/clearable_text_field.dart';
-import 'package:flas_/common/constants.dart';
-import 'package:flas_/common/image_slot.dart';
-import 'package:flas_/db/providers.dart';
+import 'package:flas_/features/decks/presentation/card_entry.dart';
+import 'package:flas_/features/decks/presentation/card_editor.dart';
+import 'package:flas_/features/decks/presentation/deck_info_fields.dart';
+import 'package:flas_/features/decks/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-class CardEntry {
-  CardEntry({
-    this.id,
-    String front = '',
-    String back = '',
-    this.frontImage,
-    this.backImage,
-  }) : termController = TextEditingController(text: front),
-       definitionController = TextEditingController(text: back);
-
-  final String? id;
-  final TextEditingController termController;
-  final TextEditingController definitionController;
-  String? frontImage, backImage;
-
-  void swap() {
-    final text = termController.text;
-    termController.text = definitionController.text;
-    definitionController.text = text;
-    final image = frontImage;
-    frontImage = backImage;
-    backImage = image;
-  }
-
-  void dispose() {
-    termController.dispose();
-    definitionController.dispose();
-  }
-}
 
 class DeckBuilderPage extends ConsumerStatefulWidget {
   const DeckBuilderPage({super.key, required this.deckId});
@@ -52,9 +22,9 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
   final _description = TextEditingController();
   final _cards = <CardEntry>[];
   final _removedCards = <CardEntry>[];
+
   bool _loading = true;
   bool _saving = false;
-
   bool get _isNewDeck => widget.deckId == null;
 
   @override
@@ -70,9 +40,12 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
       return;
     }
 
-    final repo = ref.read(deckRepositoryProvider);
-    final deck = await repo.readDeck(widget.deckId!);
-    final cards = await repo.readCards(widget.deckId!);
+    final deck = await ref
+        .read(deckRepositoryProvider)
+        .readDeck(widget.deckId!);
+    final cards = await ref
+        .read(cardRepositoryProvider)
+        .readCards(widget.deckId!);
 
     if (!mounted) return;
     setState(() {
@@ -98,14 +71,16 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
     setState(() => _saving = true);
 
     try {
-      final repo = ref.read(deckRepositoryProvider);
-      final deck = await repo.createDeck(
+      final deckRepo = ref.read(deckRepositoryProvider);
+      final cardRepo = ref.read(cardRepositoryProvider);
+
+      final deck = await deckRepo.createDeck(
         _name.text.trim(),
         _description.text.trim(),
       );
       for (int i = 0; i < _cards.length; i++) {
         final c = _cards[i];
-        await repo.createCard(
+        await cardRepo.createCard(
           deck,
           position: i,
           frontText: c.termController.text.trim(),
@@ -126,27 +101,27 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
     setState(() => _saving = true);
 
     try {
-      final repo = ref.read(deckRepositoryProvider);
-
-      final deck = await repo.readDeck(widget.deckId!);
+      final deckRepo = ref.read(deckRepositoryProvider);
+      final deck = await deckRepo.readDeck(widget.deckId!);
       final name = _name.text.trim();
       final description = _description.text.trim();
       if (deck?.name != name || deck?.description != description) {
-        await repo.updateDeck(
+        await deckRepo.updateDeck(
           widget.deckId!,
           name: name,
           description: description,
         );
       }
 
-      final oldCards = await repo.readCards(widget.deckId!);
+      final cardRepo = ref.read(cardRepositoryProvider);
+      final oldCards = await cardRepo.readCards(widget.deckId!);
       for (int i = 0; i < _cards.length; i++) {
         final c = _cards[i];
         final term = c.termController.text.trim();
         final definition = c.definitionController.text.trim();
 
         if (c.id == null) {
-          await repo.createCard(
+          await cardRepo.createCard(
             widget.deckId!,
             position: i,
             frontText: term,
@@ -163,7 +138,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
             oldCard?.frontImage != c.frontImage ||
             oldCard?.backText != definition ||
             oldCard?.backImage != c.backImage) {
-          await repo.updateCard(
+          await cardRepo.updateCard(
             c.id!,
             position: i,
             frontText: term,
@@ -177,7 +152,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
 
       if (_removedCards.isNotEmpty) {
         for (final c in _removedCards) {
-          if (c.id != null) await repo.deleteCard(c.id!);
+          if (c.id != null) await cardRepo.deleteCard(c.id!);
         }
       }
 
@@ -243,7 +218,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
 
           header: Column(
             children: [
-              _InfoSection(name: _name, description: _description),
+              DeckInfoFields(name: _name, description: _description),
               Divider(thickness: 3),
               // Padding(
               //   padding: .symmetric(horizontal: screenMargin),
@@ -257,7 +232,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
 
           children: [
             for (int i = 0; i < _cards.length; i++)
-              _CardForm(
+              CardEditor(
                 key: ObjectKey(_cards[i]),
                 card: _cards[i],
                 index: i,
@@ -273,148 +248,4 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
       ),
     );
   }
-}
-
-class _InfoSection extends StatelessWidget {
-  const _InfoSection({required this.name, required this.description});
-
-  final TextEditingController name;
-  final TextEditingController description;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: .all(screenMargin),
-      child: Column(
-        spacing: 8,
-        children: [
-          ClearableTextField(controller: name, label: 'Name'),
-          ClearableTextField(
-            controller: description,
-            label: 'Description',
-            minLines: 1,
-            maxLines: 3,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CardForm extends StatefulWidget {
-  const _CardForm({
-    super.key,
-    required this.card,
-    required this.index,
-    required this.onDelete,
-  });
-
-  final CardEntry card;
-  final int index;
-  final VoidCallback onDelete;
-
-  @override
-  State<_CardForm> createState() => _CardFormState();
-}
-
-class _CardFormState extends State<_CardForm> {
-  @override
-  Widget build(BuildContext context) {
-    final s = Theme.of(context).colorScheme;
-
-    return Container(
-      margin: .only(left: screenMargin, right: screenMargin, top: screenMargin),
-      decoration: BoxDecoration(
-        color: s.surfaceContainerLow,
-        border: .all(color: s.outline, width: 1.5),
-        borderRadius: .circular(16),
-      ),
-      clipBehavior: .antiAlias,
-      child: ExpansionTile(
-        shape: const Border(),
-        collapsedShape: const Border(),
-        controlAffinity: .leading,
-        initiallyExpanded: true,
-        childrenPadding: .all(16),
-        title: Row(
-          children: [
-            Text(
-              'Card ${widget.index + 1}',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const Spacer(),
-            ReorderableDragStartListener(
-              index: widget.index,
-              child: const Icon(Icons.drag_handle),
-            ),
-          ],
-        ),
-        trailing: PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert),
-          onSelected: (value) {
-            switch (value) {
-              case 'swap':
-                widget.card.swap();
-                break;
-              case 'delete':
-                widget.onDelete();
-                break;
-            }
-          },
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'swap',
-              child: ListTile(
-                leading: Icon(Icons.swap_horiz),
-                title: Text('Swap'),
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: ListTile(
-                leading: Icon(Icons.delete),
-                title: Text('Delete'),
-              ),
-            ),
-          ],
-        ),
-        children: [
-          Column(
-            spacing: 12,
-            crossAxisAlignment: .stretch,
-            children: [
-              ImageSlot(
-                hash: widget.card.frontImage,
-                heroTag: (widget.card, 'front'),
-                onChanged: (h) => setState(() => widget.card.frontImage = h),
-              ),
-              _textField(widget.card.termController, 'Term'),
-            ],
-          ),
-          const Padding(padding: .symmetric(vertical: 16), child: Divider()),
-          Column(
-            spacing: 12,
-            crossAxisAlignment: .stretch,
-            children: [
-              ImageSlot(
-                hash: widget.card.backImage,
-                heroTag: (widget.card, 'back'),
-                onChanged: (h) => setState(() => widget.card.backImage = h),
-              ),
-              _textField(widget.card.definitionController, 'Definition'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _textField(TextEditingController controller, String label) =>
-      ClearableTextField(
-        controller: controller,
-        label: label,
-        textAlign: .justify,
-        minLines: 1,
-        maxLines: 5,
-      );
 }
