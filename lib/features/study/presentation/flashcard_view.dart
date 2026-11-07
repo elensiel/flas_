@@ -1,3 +1,5 @@
+import 'package:flas_/core/constants.dart';
+import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/media/providers.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +20,9 @@ class FlashcardView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: .all(screenMargin),
       child: FlipCard(
+        fill: .fillBack,
         front: _side(context, ref, frontImage, frontText),
         back: _side(context, ref, backImage, backText),
       ),
@@ -31,30 +34,51 @@ class FlashcardView extends ConsumerWidget {
     WidgetRef ref,
     String? imageHash,
     String text,
-  ) => Center(
-    child: SingleChildScrollView(
-      child: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: .center,
-        spacing: 8,
-        children: [
-          if (imageHash != null)
-            ref
-                .watch(mediaFileProvider(imageHash))
-                .when(
-                  data: (f) => ClipRect(child: Image.file(f!, fit: .contain)),
-                  loading: () => const CircularProgressIndicator(),
-                  error: (_, _) => const Icon(Icons.broken_image),
-                ),
-          Text(
-            text,
-            textAlign: .justify,
-            style: TextStyle(
-              fontSize: Theme.of(context).textTheme.bodyLarge?.fontSize,
-            ),
-          ),
-        ],
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      width: .infinity,
+      decoration: BoxDecoration(
+        border: .all(color: colorScheme.outline, width: 1.5),
+        borderRadius: .circular(24),
       ),
-    ),
-  );
+      padding: const .all(20),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: .min,
+            spacing: 16,
+            children: [
+              if (imageHash != null) _image(context, ref, imageHash),
+              Text(
+                text,
+                textAlign: .justify,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: .w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _image(BuildContext context, WidgetRef ref, String hash) => ref
+      .watch(mediaFileProvider(hash))
+      .when(
+        data: (f) => f == null
+            ? const SizedBox.shrink()
+            : ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 248),
+                child: ClipRRect(
+                  borderRadius: .circular(12),
+                  child: Image.file(f, fit: .contain),
+                ),
+              ),
+        error: (_, _) => Icon(context.icons.brokenImage),
+        loading: () => const CircularProgressIndicator.adaptive(),
+      );
 }
