@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 class AppIcons extends ThemeExtension<AppIcons> {
   const AppIcons({
     required this.add,
+    required this.arrowBack,
+    required this.arrowForward,
+    required this.brokenImage,
     required this.create,
     required this.delete,
     required this.dragHandle,
@@ -21,6 +24,9 @@ class AppIcons extends ThemeExtension<AppIcons> {
   });
 
   final IconData add,
+      arrowBack,
+      arrowForward,
+      brokenImage,
       create,
       delete,
       dragHandle,
@@ -38,6 +44,9 @@ class AppIcons extends ThemeExtension<AppIcons> {
 
   static const rounded = AppIcons(
     add: Icons.add_rounded,
+    arrowBack: Icons.arrow_back_rounded,
+    arrowForward: Icons.arrow_forward_rounded,
+    brokenImage: Icons.broken_image_rounded,
     create: Icons.create_rounded,
     delete: Icons.delete_rounded,
     dragHandle: Icons.drag_handle_rounded,
@@ -56,6 +65,9 @@ class AppIcons extends ThemeExtension<AppIcons> {
 
   static const outlined = AppIcons(
     add: Icons.add,
+    arrowBack: Icons.arrow_back_outlined,
+    arrowForward: Icons.arrow_forward_outlined,
+    brokenImage: Icons.broken_image_outlined,
     create: Icons.create_outlined,
     delete: Icons.delete_outline,
     dragHandle: Icons.drag_handle_outlined,
