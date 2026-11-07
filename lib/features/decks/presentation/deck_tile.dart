@@ -1,4 +1,5 @@
 import 'package:flas_/core/database/app_db.dart';
+import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/decks/presentation/deck_builder_page.dart';
 import 'package:flas_/features/decks/providers.dart';
 import 'package:flas_/features/study/presentation/study_session_page.dart';
@@ -44,7 +45,7 @@ class DeckTile extends ConsumerWidget {
           mainAxisSize: .min,
           children: [
             ListTile(
-              leading: const Icon(Icons.play_arrow),
+              leading: Icon(context.icons.playArrow),
               title: const Text('Study'),
               onTap: () {
                 Navigator.pop(sheetContext);
@@ -57,7 +58,7 @@ class DeckTile extends ConsumerWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.edit),
+              leading: Icon(context.icons.edit),
               title: const Text('Edit'),
               onTap: () {
                 Navigator.pop(sheetContext);
@@ -70,7 +71,7 @@ class DeckTile extends ConsumerWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.delete, color: s.error),
+              leading: Icon(context.icons.delete, color: s.error),
               title: Text('Delete', style: TextStyle(color: s.error)),
               onTap: () {
                 Navigator.pop(sheetContext);

@@ -1,4 +1,5 @@
 import 'package:flas_/core/constants.dart';
+import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/decks/presentation/deck_tile.dart';
 import 'package:flas_/features/decks/providers.dart';
 import 'package:flas_/features/decks/presentation/deck_builder_page.dart';
@@ -16,13 +17,13 @@ class DeckListPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('flas_'),
         actions: [
-          const IconButton(onPressed: null, icon: Icon(Icons.search)),
+          IconButton(onPressed: null, icon: Icon(context.icons.search)),
           IconButton(
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => DeckBuilderPage(deckId: null)),
             ),
-            icon: const Icon(Icons.create),
+            icon: Icon(context.icons.create),
           ),
         ],
       ),
@@ -35,7 +36,7 @@ class DeckListPage extends ConsumerWidget {
                   spacing: 12,
                   children: [
                     Icon(
-                      Icons.style,
+                      context.icons.style,
                       size: 56,
                       color: Theme.of(context).colorScheme.outlineVariant,
                     ),
@@ -50,7 +51,7 @@ class DeckListPage extends ConsumerWidget {
                           builder: (_) => DeckBuilderPage(deckId: null),
                         ),
                       ),
-                      icon: const Icon(Icons.add),
+                      icon: Icon(context.icons.add),
                       label: const Text('Create deck'),
                     ),
                   ],

@@ -1,3 +1,4 @@
+import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/decks/presentation/deck_list_page.dart';
 import 'package:flutter/material.dart';
 
@@ -30,9 +31,15 @@ class _MainShellState extends State<MainShell> {
         child: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => setState(() => _index = i),
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.style), label: 'Decks'),
-            NavigationDestination(icon: Icon(Icons.menu), label: 'Menu'),
+          destinations: [
+            NavigationDestination(
+              icon: Icon(context.icons.style),
+              label: 'Decks',
+            ),
+            NavigationDestination(
+              icon: Icon(context.icons.menu),
+              label: 'Menu',
+            ),
           ],
         ),
       ),

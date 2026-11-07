@@ -1,7 +1,8 @@
 import 'package:flas_/core/constants.dart';
+import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/core/widgets/clearable_text_field.dart';
 import 'package:flas_/features/decks/presentation/card_entry.dart';
-import 'package:flas_/features/media/presentation/image_slot.dart';
+import 'package:flas_/features/media/presentation/image_field.dart';
 import 'package:flutter/material.dart';
 
 class CardEditor extends StatefulWidget {
@@ -48,12 +49,12 @@ class _CardEditorState extends State<CardEditor> {
             const Spacer(),
             ReorderableDragStartListener(
               index: widget.index,
-              child: const Icon(Icons.drag_handle),
+              child: Icon(context.icons.dragHandle),
             ),
           ],
         ),
         trailing: PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert),
+          icon: Icon(context.icons.moreVert),
           onSelected: (value) {
             switch (value) {
               case 'swap':
@@ -65,18 +66,18 @@ class _CardEditorState extends State<CardEditor> {
             }
           },
           itemBuilder: (context) => [
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'swap',
               child: ListTile(
-                leading: Icon(Icons.swap_horiz),
-                title: Text('Swap'),
+                leading: Icon(context.icons.swapHoriz),
+                title: const Text('Swap'),
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'delete',
               child: ListTile(
-                leading: Icon(Icons.delete),
-                title: Text('Delete'),
+                leading: Icon(context.icons.delete),
+                title: const Text('Delete'),
               ),
             ),
           ],
@@ -86,7 +87,7 @@ class _CardEditorState extends State<CardEditor> {
             spacing: 12,
             crossAxisAlignment: .stretch,
             children: [
-              ImageSlot(
+              ImageField(
                 hash: widget.card.frontImage,
                 heroTag: (widget.card, 'front'),
                 onChanged: (h) => setState(() => widget.card.frontImage = h),
@@ -99,7 +100,7 @@ class _CardEditorState extends State<CardEditor> {
             spacing: 12,
             crossAxisAlignment: .stretch,
             children: [
-              ImageSlot(
+              ImageField(
                 hash: widget.card.backImage,
                 heroTag: (widget.card, 'back'),
                 onChanged: (h) => setState(() => widget.card.backImage = h),
