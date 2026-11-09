@@ -33,7 +33,7 @@ class DeckRepository {
 
   Future<Deck?> readDeck(String id) => (db.select(
     db.decks,
-  )..where((d) => d.id.equals(id) & d.dirty.isNull())).getSingleOrNull();
+  )..where((d) => d.id.equals(id) & d.deletedAt.isNull())).getSingleOrNull();
 
   Future<void> updateDeck(String id, {String? name, String? description}) =>
       (db.update(
