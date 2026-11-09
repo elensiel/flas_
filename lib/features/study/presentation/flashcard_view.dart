@@ -51,7 +51,22 @@ class FlashcardView extends ConsumerWidget {
             mainAxisSize: .min,
             spacing: 16,
             children: [
-              if (imageHash != null) _image(context, ref, imageHash),
+              if (imageHash != null)
+                ref
+                    .watch(mediaFileProvider(imageHash))
+                    .when(
+                      data: (f) => f == null
+                          ? const SizedBox.shrink()
+                          : ConstrainedBox(
+                              constraints: const BoxConstraints(maxHeight: 248),
+                              child: ClipRRect(
+                                borderRadius: .circular(12),
+                                child: Image.file(f, fit: .contain),
+                              ),
+                            ),
+                      error: (_, _) => Icon(context.icons.brokenImage),
+                      loading: () => const CircularProgressIndicator.adaptive(),
+                    ),
               Text(
                 text,
                 textAlign: .justify,
@@ -65,20 +80,4 @@ class FlashcardView extends ConsumerWidget {
       ),
     );
   }
-
-  Widget _image(BuildContext context, WidgetRef ref, String hash) => ref
-      .watch(mediaFileProvider(hash))
-      .when(
-        data: (f) => f == null
-            ? const SizedBox.shrink()
-            : ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 248),
-                child: ClipRRect(
-                  borderRadius: .circular(12),
-                  child: Image.file(f, fit: .contain),
-                ),
-              ),
-        error: (_, _) => Icon(context.icons.brokenImage),
-        loading: () => const CircularProgressIndicator.adaptive(),
-      );
 }
