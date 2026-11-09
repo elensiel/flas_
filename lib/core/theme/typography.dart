@@ -18,6 +18,6 @@ class AppFonts {
 
   static const all = [fredoka, system];
 
-  static FontEntry byid(String id) =>
+  static FontEntry byId(String id) =>
       all.firstWhere((f) => f.id == id, orElse: () => fredoka);
 }

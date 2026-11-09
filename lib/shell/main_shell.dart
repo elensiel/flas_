@@ -1,5 +1,6 @@
 import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/decks/presentation/deck_list_page.dart';
+import 'package:flas_/features/settings/presentation/menu_page.dart';
 import 'package:flutter/material.dart';
 
 class MainShell extends StatefulWidget {
@@ -17,7 +18,7 @@ class _MainShellState extends State<MainShell> {
     return Scaffold(
       body: IndexedStack(
         index: _index,
-        children: const [DeckListPage(), Scaffold()],
+        children: const [DeckListPage(), MenuPage()],
       ),
 
       bottomNavigationBar: DecoratedBox(

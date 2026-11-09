@@ -21,6 +21,8 @@ class AppIcons extends ThemeExtension<AppIcons> {
     required this.search,
     required this.style,
     required this.swapHoriz,
+    required this.warning,
+    required this.palette,
   });
 
   final IconData add,
@@ -34,13 +36,15 @@ class AppIcons extends ThemeExtension<AppIcons> {
       image,
       menu,
       moreVert,
+      palette,
       photoCamera,
       photoLibrary,
       playArrow,
       save,
       search,
       style,
-      swapHoriz;
+      swapHoriz,
+      warning;
 
   static const rounded = AppIcons(
     add: Icons.add_rounded,
@@ -54,6 +58,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
     image: Icons.image_rounded,
     menu: Icons.menu_rounded,
     moreVert: Icons.more_vert_rounded,
+    palette: Icons.palette_rounded,
     photoCamera: Icons.photo_camera_rounded,
     photoLibrary: Icons.photo_library_rounded,
     playArrow: Icons.play_arrow_rounded,
@@ -61,6 +66,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
     search: Icons.search_rounded,
     style: Icons.style_rounded,
     swapHoriz: Icons.swap_horiz_rounded,
+    warning: Icons.warning_rounded,
   );
 
   static const outlined = AppIcons(
@@ -75,6 +81,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
     image: Icons.image_outlined,
     menu: Icons.menu,
     moreVert: Icons.more_vert_outlined,
+    palette: Icons.palette_outlined,
     photoCamera: Icons.photo_camera_outlined,
     photoLibrary: Icons.photo_library_outlined,
     playArrow: Icons.play_arrow_outlined,
@@ -82,6 +89,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
     search: Icons.search,
     style: Icons.style_outlined,
     swapHoriz: Icons.swap_horiz_outlined,
+    warning: Icons.warning_outlined,
   );
 
   @override

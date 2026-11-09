@@ -7,7 +7,7 @@ class AppMotion extends ThemeExtension<AppMotion> {
   final double scale;
 
   Duration get fast => _scaled(150);
-  Duration get medium => _scaled(300);
+  Duration get normal => _scaled(300);
   Duration get slow => _scaled(500);
 
   Curve get standard => Curves.easeInOut;

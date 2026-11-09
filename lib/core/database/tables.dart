@@ -44,6 +44,18 @@ class MediaFiles extends Table {
   Set<Column<Object>>? get primaryKey => {hash};
 }
 
+@DataClassName('Appearance')
+class Appearances extends Table {
+  TextColumn get id => text()();
+  TextColumn get themeMode => text()();
+  TextColumn get fontId => text()();
+  TextColumn get iconSet => text()();
+  TextColumn get motion => text()();
+
+  @override
+  Set<Column<Object>>? get primaryKey => {id};
+}
+
 class SyncState extends Table {
   TextColumn get key => text()();
   TextColumn get value => text()();

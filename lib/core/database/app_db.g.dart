@@ -1283,6 +1283,364 @@ class MediaFilesCompanion extends UpdateCompanion<MediaFile> {
   }
 }
 
+class $AppearancesTable extends Appearances
+    with TableInfo<$AppearancesTable, Appearance> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AppearancesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _themeModeMeta = const VerificationMeta(
+    'themeMode',
+  );
+  @override
+  late final GeneratedColumn<String> themeMode = GeneratedColumn<String>(
+    'theme_mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fontIdMeta = const VerificationMeta('fontId');
+  @override
+  late final GeneratedColumn<String> fontId = GeneratedColumn<String>(
+    'font_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _iconSetMeta = const VerificationMeta(
+    'iconSet',
+  );
+  @override
+  late final GeneratedColumn<String> iconSet = GeneratedColumn<String>(
+    'icon_set',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _motionMeta = const VerificationMeta('motion');
+  @override
+  late final GeneratedColumn<String> motion = GeneratedColumn<String>(
+    'motion',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    themeMode,
+    fontId,
+    iconSet,
+    motion,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'appearances';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Appearance> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('theme_mode')) {
+      context.handle(
+        _themeModeMeta,
+        themeMode.isAcceptableOrUnknown(data['theme_mode']!, _themeModeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_themeModeMeta);
+    }
+    if (data.containsKey('font_id')) {
+      context.handle(
+        _fontIdMeta,
+        fontId.isAcceptableOrUnknown(data['font_id']!, _fontIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fontIdMeta);
+    }
+    if (data.containsKey('icon_set')) {
+      context.handle(
+        _iconSetMeta,
+        iconSet.isAcceptableOrUnknown(data['icon_set']!, _iconSetMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_iconSetMeta);
+    }
+    if (data.containsKey('motion')) {
+      context.handle(
+        _motionMeta,
+        motion.isAcceptableOrUnknown(data['motion']!, _motionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_motionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Appearance map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Appearance(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      themeMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}theme_mode'],
+      )!,
+      fontId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}font_id'],
+      )!,
+      iconSet: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_set'],
+      )!,
+      motion: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}motion'],
+      )!,
+    );
+  }
+
+  @override
+  $AppearancesTable createAlias(String alias) {
+    return $AppearancesTable(attachedDatabase, alias);
+  }
+}
+
+class Appearance extends DataClass implements Insertable<Appearance> {
+  final String id;
+  final String themeMode;
+  final String fontId;
+  final String iconSet;
+  final String motion;
+  const Appearance({
+    required this.id,
+    required this.themeMode,
+    required this.fontId,
+    required this.iconSet,
+    required this.motion,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['theme_mode'] = Variable<String>(themeMode);
+    map['font_id'] = Variable<String>(fontId);
+    map['icon_set'] = Variable<String>(iconSet);
+    map['motion'] = Variable<String>(motion);
+    return map;
+  }
+
+  AppearancesCompanion toCompanion(bool nullToAbsent) {
+    return AppearancesCompanion(
+      id: Value(id),
+      themeMode: Value(themeMode),
+      fontId: Value(fontId),
+      iconSet: Value(iconSet),
+      motion: Value(motion),
+    );
+  }
+
+  factory Appearance.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Appearance(
+      id: serializer.fromJson<String>(json['id']),
+      themeMode: serializer.fromJson<String>(json['themeMode']),
+      fontId: serializer.fromJson<String>(json['fontId']),
+      iconSet: serializer.fromJson<String>(json['iconSet']),
+      motion: serializer.fromJson<String>(json['motion']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'themeMode': serializer.toJson<String>(themeMode),
+      'fontId': serializer.toJson<String>(fontId),
+      'iconSet': serializer.toJson<String>(iconSet),
+      'motion': serializer.toJson<String>(motion),
+    };
+  }
+
+  Appearance copyWith({
+    String? id,
+    String? themeMode,
+    String? fontId,
+    String? iconSet,
+    String? motion,
+  }) => Appearance(
+    id: id ?? this.id,
+    themeMode: themeMode ?? this.themeMode,
+    fontId: fontId ?? this.fontId,
+    iconSet: iconSet ?? this.iconSet,
+    motion: motion ?? this.motion,
+  );
+  Appearance copyWithCompanion(AppearancesCompanion data) {
+    return Appearance(
+      id: data.id.present ? data.id.value : this.id,
+      themeMode: data.themeMode.present ? data.themeMode.value : this.themeMode,
+      fontId: data.fontId.present ? data.fontId.value : this.fontId,
+      iconSet: data.iconSet.present ? data.iconSet.value : this.iconSet,
+      motion: data.motion.present ? data.motion.value : this.motion,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Appearance(')
+          ..write('id: $id, ')
+          ..write('themeMode: $themeMode, ')
+          ..write('fontId: $fontId, ')
+          ..write('iconSet: $iconSet, ')
+          ..write('motion: $motion')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, themeMode, fontId, iconSet, motion);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Appearance &&
+          other.id == this.id &&
+          other.themeMode == this.themeMode &&
+          other.fontId == this.fontId &&
+          other.iconSet == this.iconSet &&
+          other.motion == this.motion);
+}
+
+class AppearancesCompanion extends UpdateCompanion<Appearance> {
+  final Value<String> id;
+  final Value<String> themeMode;
+  final Value<String> fontId;
+  final Value<String> iconSet;
+  final Value<String> motion;
+  final Value<int> rowid;
+  const AppearancesCompanion({
+    this.id = const Value.absent(),
+    this.themeMode = const Value.absent(),
+    this.fontId = const Value.absent(),
+    this.iconSet = const Value.absent(),
+    this.motion = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AppearancesCompanion.insert({
+    required String id,
+    required String themeMode,
+    required String fontId,
+    required String iconSet,
+    required String motion,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       themeMode = Value(themeMode),
+       fontId = Value(fontId),
+       iconSet = Value(iconSet),
+       motion = Value(motion);
+  static Insertable<Appearance> custom({
+    Expression<String>? id,
+    Expression<String>? themeMode,
+    Expression<String>? fontId,
+    Expression<String>? iconSet,
+    Expression<String>? motion,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (themeMode != null) 'theme_mode': themeMode,
+      if (fontId != null) 'font_id': fontId,
+      if (iconSet != null) 'icon_set': iconSet,
+      if (motion != null) 'motion': motion,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AppearancesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? themeMode,
+    Value<String>? fontId,
+    Value<String>? iconSet,
+    Value<String>? motion,
+    Value<int>? rowid,
+  }) {
+    return AppearancesCompanion(
+      id: id ?? this.id,
+      themeMode: themeMode ?? this.themeMode,
+      fontId: fontId ?? this.fontId,
+      iconSet: iconSet ?? this.iconSet,
+      motion: motion ?? this.motion,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (themeMode.present) {
+      map['theme_mode'] = Variable<String>(themeMode.value);
+    }
+    if (fontId.present) {
+      map['font_id'] = Variable<String>(fontId.value);
+    }
+    if (iconSet.present) {
+      map['icon_set'] = Variable<String>(iconSet.value);
+    }
+    if (motion.present) {
+      map['motion'] = Variable<String>(motion.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AppearancesCompanion(')
+          ..write('id: $id, ')
+          ..write('themeMode: $themeMode, ')
+          ..write('fontId: $fontId, ')
+          ..write('iconSet: $iconSet, ')
+          ..write('motion: $motion, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SyncStateTable extends SyncState
     with TableInfo<$SyncStateTable, SyncStateData> {
   @override
@@ -1497,6 +1855,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DecksTable decks = $DecksTable(this);
   late final $CardsTable cards = $CardsTable(this);
   late final $MediaFilesTable mediaFiles = $MediaFilesTable(this);
+  late final $AppearancesTable appearances = $AppearancesTable(this);
   late final $SyncStateTable syncState = $SyncStateTable(this);
   late final Index idxDeckDirty = Index(
     'idx_deck_dirty',
@@ -1518,6 +1877,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     decks,
     cards,
     mediaFiles,
+    appearances,
     syncState,
     idxDeckDirty,
     idxCardsDeck,
@@ -2429,6 +2789,215 @@ typedef $$MediaFilesTableProcessedTableManager =
       MediaFile,
       PrefetchHooks Function()
     >;
+typedef $$AppearancesTableCreateCompanionBuilder =
+    AppearancesCompanion Function({
+      required String id,
+      required String themeMode,
+      required String fontId,
+      required String iconSet,
+      required String motion,
+      Value<int> rowid,
+    });
+typedef $$AppearancesTableUpdateCompanionBuilder =
+    AppearancesCompanion Function({
+      Value<String> id,
+      Value<String> themeMode,
+      Value<String> fontId,
+      Value<String> iconSet,
+      Value<String> motion,
+      Value<int> rowid,
+    });
+
+class $$AppearancesTableFilterComposer
+    extends Composer<_$AppDatabase, $AppearancesTable> {
+  $$AppearancesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get themeMode => $composableBuilder(
+    column: $table.themeMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fontId => $composableBuilder(
+    column: $table.fontId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get iconSet => $composableBuilder(
+    column: $table.iconSet,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get motion => $composableBuilder(
+    column: $table.motion,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AppearancesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AppearancesTable> {
+  $$AppearancesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get themeMode => $composableBuilder(
+    column: $table.themeMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fontId => $composableBuilder(
+    column: $table.fontId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get iconSet => $composableBuilder(
+    column: $table.iconSet,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get motion => $composableBuilder(
+    column: $table.motion,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AppearancesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AppearancesTable> {
+  $$AppearancesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get themeMode =>
+      $composableBuilder(column: $table.themeMode, builder: (column) => column);
+
+  GeneratedColumn<String> get fontId =>
+      $composableBuilder(column: $table.fontId, builder: (column) => column);
+
+  GeneratedColumn<String> get iconSet =>
+      $composableBuilder(column: $table.iconSet, builder: (column) => column);
+
+  GeneratedColumn<String> get motion =>
+      $composableBuilder(column: $table.motion, builder: (column) => column);
+}
+
+class $$AppearancesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AppearancesTable,
+          Appearance,
+          $$AppearancesTableFilterComposer,
+          $$AppearancesTableOrderingComposer,
+          $$AppearancesTableAnnotationComposer,
+          $$AppearancesTableCreateCompanionBuilder,
+          $$AppearancesTableUpdateCompanionBuilder,
+          (
+            Appearance,
+            BaseReferences<_$AppDatabase, $AppearancesTable, Appearance>,
+          ),
+          Appearance,
+          PrefetchHooks Function()
+        > {
+  $$AppearancesTableTableManager(_$AppDatabase db, $AppearancesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AppearancesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AppearancesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AppearancesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> themeMode = const Value.absent(),
+                Value<String> fontId = const Value.absent(),
+                Value<String> iconSet = const Value.absent(),
+                Value<String> motion = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AppearancesCompanion(
+                id: id,
+                themeMode: themeMode,
+                fontId: fontId,
+                iconSet: iconSet,
+                motion: motion,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String themeMode,
+                required String fontId,
+                required String iconSet,
+                required String motion,
+                Value<int> rowid = const Value.absent(),
+              }) => AppearancesCompanion.insert(
+                id: id,
+                themeMode: themeMode,
+                fontId: fontId,
+                iconSet: iconSet,
+                motion: motion,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AppearancesTable, Appearance>(table),
+                  BaseReferences<_$AppDatabase, $AppearancesTable, Appearance>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AppearancesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AppearancesTable,
+      Appearance,
+      $$AppearancesTableFilterComposer,
+      $$AppearancesTableOrderingComposer,
+      $$AppearancesTableAnnotationComposer,
+      $$AppearancesTableCreateCompanionBuilder,
+      $$AppearancesTableUpdateCompanionBuilder,
+      (
+        Appearance,
+        BaseReferences<_$AppDatabase, $AppearancesTable, Appearance>,
+      ),
+      Appearance,
+      PrefetchHooks Function()
+    >;
 typedef $$SyncStateTableCreateCompanionBuilder = SyncStateCompanion Function({
   required String key,
   required String value,
@@ -2579,6 +3148,8 @@ class $AppDatabaseManager {
       $$CardsTableTableManager(_db, _db.cards);
   $$MediaFilesTableTableManager get mediaFiles =>
       $$MediaFilesTableTableManager(_db, _db.mediaFiles);
+  $$AppearancesTableTableManager get appearances =>
+      $$AppearancesTableTableManager(_db, _db.appearances);
   $$SyncStateTableTableManager get syncState =>
       $$SyncStateTableTableManager(_db, _db.syncState);
 }
