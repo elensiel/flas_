@@ -4,6 +4,7 @@ import 'package:flas_/features/media/data/media_store.dart';
 import 'package:flas_/features/sync/data/sync_local_store.dart';
 import 'package:flas_/features/sync/data/wire_mapper.dart';
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 
 class SyncService {
   SyncService({
@@ -19,17 +20,30 @@ class SyncService {
   final String baseUrl, token;
   final http.Client _http;
 
+  final _log = Logger('sync');
   bool _running = false;
+  bool _pending = false;
   Map<String, String> get _header => {'authorization': 'Bearer $token'};
 
   Future<void> sync() async {
-    if (_running) return;
+    if (_running) {
+      _pending = true;
+      return;
+    }
     _running = true;
 
     try {
-      await _uploadMedia();
-      await _push();
-      await _pull();
+      do {
+        _pending = false;
+        try {
+          await _uploadMedia();
+          await _push();
+          await _pull();
+        } catch (e, st) {
+          _log.warning('sync failed', e, st);
+          break;
+        }
+      } while (_pending);
     } finally {
       _running = false;
     }
