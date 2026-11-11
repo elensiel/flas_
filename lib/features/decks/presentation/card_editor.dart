@@ -39,6 +39,7 @@ class _CardEditorState extends State<CardEditor> {
         collapsedShape: const Border(),
         controlAffinity: .leading,
         initiallyExpanded: true,
+        maintainState: true, // allow validation on collapsed
         childrenPadding: .all(16),
         title: Row(
           children: [
