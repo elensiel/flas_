@@ -45,4 +45,23 @@ class MediaStore {
   Future<void> markUploaded(String hash) =>
       (db.update(db.mediaFiles)..where((media) => media.hash.equals(hash)))
           .write(const MediaFilesCompanion(uploaded: Value(true)));
+
+  Future<void> saveBytes(String hash, List<int> bytes) async {
+    final dir = Directory(
+      p.join((await getApplicationDocumentsDirectory()).path, 'media'),
+    );
+    await dir.create(recursive: true);
+    final dest = File(p.join(dir.path, hash));
+    await dest.writeAsBytes(bytes);
+    await db
+        .into(db.mediaFiles)
+        .insert(
+          MediaFilesCompanion.insert(
+            hash: hash,
+            path: dest.path,
+            uploaded: const Value(true),
+          ),
+          mode: .insertOrIgnore,
+        );
+  }
 }

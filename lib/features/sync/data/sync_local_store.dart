@@ -45,4 +45,17 @@ class SyncLocalStore {
         .into(db.cards)
         .insertOnConflictUpdate(remote.copyWith(dirty: false));
   }
+
+  Future<int> cursor() async {
+    final row = await (db.select(
+      db.syncState,
+    )..where((s) => s.key.equals('cursor'))).getSingleOrNull();
+    return int.tryParse(row?.value ?? '') ?? 0;
+  }
+
+  Future<void> setCursor(int v) => db
+      .into(db.syncState)
+      .insertOnConflictUpdate(
+        SyncStateCompanion.insert(key: 'cursor', value: '$v'),
+      );
 }
