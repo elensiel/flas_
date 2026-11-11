@@ -96,7 +96,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
     }
   }
 
-  void _update() async {
+  Future<void> _update() async {
     if (_saving || !_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
 
@@ -132,7 +132,8 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
           continue;
         }
 
-        final oldCard = {for (final c in oldCards) c.id: c}[c.id];
+        final oldCardsById = {for (final c in oldCards) c.id: c};
+        final oldCard = oldCardsById[c.id];
         if (oldCard?.position != i ||
             oldCard?.frontText != term ||
             oldCard?.frontImage != c.frontImage ||
@@ -146,7 +147,6 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
             backText: definition,
             backImage: Value(c.backImage), // todo
           );
-          continue;
         }
       }
 
@@ -154,6 +154,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
         for (final c in _removedCards) {
           if (c.id != null) await cardRepo.deleteCard(c.id!);
         }
+        _removedCards.clear();
       }
 
       if (mounted) Navigator.pop(context);
