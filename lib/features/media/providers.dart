@@ -6,6 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final mediaStoreProvider = Provider((ref) => MediaStore(ref.watch(dbProvider)));
 
-final mediaFileProvider = FutureProvider.family<File?, String>(
-  (ref, hash) => ref.watch(mediaStoreProvider).file(hash),
+final mediaFileProvider = StreamProvider.family<File?, String>(
+  (ref, hash) => ref.watch(mediaStoreProvider).watchFile(hash),
 );

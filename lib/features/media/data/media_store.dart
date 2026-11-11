@@ -11,6 +11,11 @@ class MediaStore {
 
   final AppDatabase db;
 
+  Stream<File?> watchFile(String hash) =>
+      (db.select(db.mediaFiles)..where((m) => m.hash.equals(hash)))
+          .watchSingleOrNull()
+          .map((row) => row != null ? File(row.path) : null);
+
   Future<String> save(File source) async {
     final bytes = await source.readAsBytes();
     final hash = sha256.convert(bytes).toString();
