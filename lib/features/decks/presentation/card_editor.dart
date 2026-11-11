@@ -1,7 +1,7 @@
 import 'package:flas_/core/constants.dart';
 import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/core/widgets/clearable_text_field.dart';
-import 'package:flas_/features/decks/presentation/card_entry.dart';
+import 'package:flas_/features/decks/presentation/card_draft.dart';
 import 'package:flas_/features/media/presentation/image_field.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +13,7 @@ class CardEditor extends StatefulWidget {
     required this.onDelete,
   });
 
-  final CardEntry card;
+  final CardDraft card;
   final int index;
   final VoidCallback onDelete;
 

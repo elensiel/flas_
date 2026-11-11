@@ -1,7 +1,9 @@
+import 'package:flas_/core/database/app_db.dart';
+import 'package:flas_/features/decks/domain/deck_form_data.dart';
 import 'package:flutter/material.dart';
 
-class CardEntry {
-  CardEntry({
+class CardDraft {
+  CardDraft({
     this.id,
     String front = '',
     String back = '',
@@ -27,4 +29,20 @@ class CardEntry {
     termController.dispose();
     definitionController.dispose();
   }
+
+  factory CardDraft.fromRow(Flashcard c) => CardDraft(
+    id: c.id,
+    front: c.frontText,
+    back: c.backText,
+    frontImage: c.frontImage,
+    backImage: c.backImage,
+  );
+
+  CardData toData() => CardData(
+    id: id,
+    frontText: termController.text.trim(),
+    backText: definitionController.text.trim(),
+    frontImage: frontImage,
+    backImage: backImage,
+  );
 }
