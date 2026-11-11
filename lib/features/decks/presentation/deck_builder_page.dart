@@ -3,6 +3,7 @@ import 'package:flas_/features/decks/presentation/card_entry.dart';
 import 'package:flas_/features/decks/presentation/card_editor.dart';
 import 'package:flas_/features/decks/presentation/deck_info_fields.dart';
 import 'package:flas_/features/decks/providers.dart';
+import 'package:flas_/features/sync/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -89,6 +90,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
           backImage: c.backImage?.trim(),
         );
       }
+      ref.read(syncServiceProvider).sync();
       if (mounted) Navigator.pop(context);
     } catch (_) {
       if (mounted) setState(() => _saving = false);
@@ -143,9 +145,9 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
             c.id!,
             position: i,
             frontText: term,
-            frontImage: Value(c.frontImage), // todo
+            frontImage: Value(c.frontImage),
             backText: definition,
-            backImage: Value(c.backImage), // todo
+            backImage: Value(c.backImage),
           );
         }
       }
@@ -157,6 +159,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
         _removedCards.clear();
       }
 
+      ref.read(syncServiceProvider).sync();
       if (mounted) Navigator.pop(context);
     } catch (_) {
       if (mounted) setState(() => _saving = false);

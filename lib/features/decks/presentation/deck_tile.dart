@@ -3,6 +3,7 @@ import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/decks/presentation/deck_builder_page.dart';
 import 'package:flas_/features/decks/providers.dart';
 import 'package:flas_/features/study/presentation/study_session_page.dart';
+import 'package:flas_/features/sync/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,6 +28,7 @@ class DeckTile extends ConsumerWidget {
               ),
               onPressed: () {
                 ref.read(deckRepositoryProvider).deleteDeck(deck.id);
+                ref.read(syncServiceProvider).sync();
                 Navigator.pop(dialogContext);
               },
               child: const Text('Delete'),
