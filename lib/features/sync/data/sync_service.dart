@@ -24,6 +24,7 @@ class SyncService {
   bool _running = false;
   bool _pending = false;
   Map<String, String> get _header => {'authorization': 'Bearer $token'};
+  static const _timeout = Duration(seconds: 15);
 
   Future<void> sync() async {
     if (_running) {
@@ -54,11 +55,13 @@ class SyncService {
       final file = await media.file(m.hash);
       if (file == null || !await file.exists()) continue;
 
-      final response = await _http.put(
-        Uri.parse('$baseUrl/media/${m.hash}'),
-        headers: _header,
-        body: await file.readAsBytes(),
-      );
+      final response = await _http
+          .put(
+            Uri.parse('$baseUrl/media/${m.hash}'),
+            headers: _header,
+            body: await file.readAsBytes(),
+          )
+          .timeout(_timeout);
       if (response.statusCode == 200) await media.markUploaded(m.hash);
     }
   }
@@ -68,14 +71,16 @@ class SyncService {
     final cards = await store.dirtyCards();
     if (decks.isEmpty && cards.isEmpty) return;
 
-    final response = await _http.post(
-      Uri.parse('$baseUrl/sync/push'),
-      headers: _header,
-      body: jsonEncode({
-        'decks': decks.map(WireMapper.deckToWire).toList(),
-        'cards': cards.map(WireMapper.cardToWire).toList(),
-      }),
-    );
+    final response = await _http
+        .post(
+          Uri.parse('$baseUrl/sync/push'),
+          headers: _header,
+          body: jsonEncode({
+            'decks': decks.map(WireMapper.deckToWire).toList(),
+            'cards': cards.map(WireMapper.cardToWire).toList(),
+          }),
+        )
+        .timeout(_timeout);
     if (response.statusCode != 200) {
       throw Exception('push failed: ${response.statusCode}');
     }
@@ -90,10 +95,9 @@ class SyncService {
 
   Future<void> _pull() async {
     final since = await store.cursor();
-    final response = await _http.get(
-      Uri.parse('$baseUrl/sync/pull?since=$since'),
-      headers: _header,
-    );
+    final response = await _http
+        .get(Uri.parse('$baseUrl/sync/pull?since=$since'), headers: _header)
+        .timeout(_timeout);
     if (response.statusCode != 200) {
       throw Exception('pull failed: ${response.statusCode}');
     }
@@ -117,10 +121,9 @@ class SyncService {
 
   Future<void> _fetchMedia(String? hash) async {
     if (hash == null || await media.file(hash) != null) return;
-    final response = await _http.get(
-      Uri.parse('$baseUrl/media/$hash'),
-      headers: _header,
-    );
+    final response = await _http
+        .get(Uri.parse('$baseUrl/media/$hash'), headers: _header)
+        .timeout(_timeout);
     if (response.statusCode == 200) {
       await media.saveBytes(hash, response.bodyBytes);
     }
