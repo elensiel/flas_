@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:flas_server/auth.dart';
 import 'package:flas_server/logging.dart';
 import 'package:logging/logging.dart';
 import 'package:shelf/shelf.dart';
@@ -11,23 +13,40 @@ import 'package:sqlite3/sqlite3.dart';
 
 final db = sqlite3.open('flas_server.db');
 final mediaDir = Directory('media')..createSync(recursive: true);
-const token = String.fromEnvironment('FLAS_TOKEN', defaultValue: 'dev-token');
 final _log = Logger('flas_server');
 
 void initDb() => db.execute('''
 PRAGMA journal_mode=WAL;
 PRAGMA synchronous=NORMAL;
+PRAGMA foreign_keys=ON;
+
+CREATE TABLE IF NOT EXISTS users(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+)
+
+CREATE TABLE IF NOT EXISTS sessions(
+  token_hash TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires_at INTEGER NOT NULL
+)
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 
 CREATE TABLE IF NOT EXISTS decks( 
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   id TEXT PRIMARY KEY, 
   name TEXT NOT NULL, 
   description TEXT NOT NULL, 
   updated_at INTEGER NOT NULL, 
   deleted_at INTEGER, 
-  seq INTEGER NOT NULL
+  seq INTEGER NOT NULL,
+  PRIMARY KEY(user_id, id)
 );
 
 CREATE TABLE IF NOT EXISTS cards(
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   id TEXT PRIMARY KEY, 
   deck_id TEXT NOT NULL,
   front_text TEXT NOT NULL, 
@@ -37,11 +56,12 @@ CREATE TABLE IF NOT EXISTS cards(
   position INTEGER NOT NULL, 
   updated_at INTEGER NOT NULL,
   deleted_at INTEGER, 
-  seq INTEGER NOT NULL
+  seq INTEGER NOT NULL,
+  PRIMARY KEY(user_id, id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_decks_seq ON decks(seq);
-CREATE INDEX IF NOT EXISTS idx_cards_seq ON cards(seq);
+CREATE INDEX IF NOT EXISTS idx_decks_seq ON decks(user_id, seq);
+CREATE INDEX IF NOT EXISTS idx_cards_seq ON cards(user_id, seq);
 
 CREATE TABLE IF NOT EXISTS meta(
   key TEXT PRIMARY KEY, 
@@ -63,9 +83,9 @@ void prepare() {
   );
   _currentSeq = db.prepare("SELECT value FROM meta WHERE key='seq'");
   _upsertDeck = db.prepare('''
-    INSERT INTO decks(id, name, description, updated_at, deleted_at, seq)
-    VALUES(?,?,?,?,?,?)
-    ON CONFLICT(id) DO UPDATE SET
+    INSERT INTO decks(user_id, id, name, description, updated_at, deleted_at, seq)
+    VALUES(?,?,?,?,?,?,?)
+    ON CONFLICT(uesr_id, id) DO UPDATE SET
       name=excluded.name,
       description=excluded.description,
       updated_at=excluded.updated_at,
@@ -75,12 +95,12 @@ void prepare() {
     ''');
   _upsertCard = db.prepare('''
     INSERT INTO cards(
-      id, deck_id, front_text, front_image, 
+      user_id, id, deck_id, front_text, front_image, 
       back_text, back_image, position, 
       updated_at, deleted_at, seq
     )
-    VALUES(?,?,?,?,?,?,?,?,?,?)
-    ON CONFLICT(id) DO UPDATE SET
+    VALUES(?,?,?,?,?,?,?,?,?,?,?)
+    ON CONFLICT(user_id, id) DO UPDATE SET
       deck_id=excluded.deck_id,
       front_text=excluded.front_text,
       front_image=excluded.front_image,
@@ -92,37 +112,26 @@ void prepare() {
       seq=excluded.seq
     WHERE excluded.updated_at >= cards.updated_at
     ''');
-  _pullDecks = db.prepare('SELECT * FROM decks WHERE seq > ? ORDER BY seq');
-  _pullCards = db.prepare('SELECT * FROM cards WHERE seq > ? ORDER BY seq');
+  _pullDecks = db.prepare(
+    'SELECT * FROM decks WHERE user_id = ? AND seq > ? ORDER BY seq',
+  );
+  _pullCards = db.prepare(
+    'SELECT * FROM cards WHERE user_id = ? AND seq > ? ORDER BY seq',
+  );
 }
 
 int currentSeq() => _currentSeq.select().first['value'] as int;
 int nextSeq() => _nextSeq.select().first['value'] as int;
 
-bool _safeEquals(String a, String b) {
-  if (a.length != b.length) return false;
-  int r = 0;
-  for (int i = 0; i < a.length; i++) {
-    r |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
-  }
-  return r == 0;
-}
+int _userId(Request req) => req.context['userId'] as int;
 
-Middleware auth() =>
-    (inner) => (request) {
-      final header = request.headers['authorization'] ?? '';
-      if (!_safeEquals(header, 'Bearer $token')) {
-        return .unauthorized('');
-      }
-      return inner(request);
-    };
+final _jsonHeaders = {'content-type': 'application/json'};
 
-final _json = {'content-type': 'application/json'};
-
-Future<Response> push(Request request) async {
+Future<Response> push(Request req) async {
+  final userId = _userId(req);
   final Map<String, dynamic> body;
   try {
-    body = jsonDecode(await request.readAsString()) as Map<String, dynamic>;
+    body = jsonDecode(await req.readAsString()) as Map<String, dynamic>;
   } catch (_) {
     return .badRequest(body: 'invalid json');
   }
@@ -131,6 +140,7 @@ Future<Response> push(Request request) async {
   try {
     for (final d in (body['decks'] as List? ?? [])) {
       _upsertDeck.execute([
+        userId,
         d['id'],
         d['name'],
         d['description'],
@@ -141,6 +151,7 @@ Future<Response> push(Request request) async {
     }
     for (final c in (body['cards'] as List? ?? [])) {
       _upsertCard.execute([
+        userId,
         c['id'],
         c['deckId'],
         c['frontText'],
@@ -159,15 +170,16 @@ Future<Response> push(Request request) async {
     _log.warning('push failed: $e', stackTrace);
     return .badRequest(body: 'invalid payload');
   }
-  return .ok('{}', headers: _json);
+  return .ok('{}', headers: _jsonHeaders);
 }
 
-Response pull(Request request) {
-  final since = int.tryParse(request.url.queryParameters['since'] ?? '') ?? 0;
+Response pull(Request req) {
+  final userId = _userId(req);
+  final since = int.tryParse(req.url.queryParameters['since'] ?? '') ?? 0;
   final cursor = currentSeq();
 
   final decks = [
-    for (final r in _pullDecks.select([since]))
+    for (final r in _pullDecks.select([userId, since]))
       {
         'id': r['id'],
         'name': r['name'],
@@ -178,7 +190,7 @@ Response pull(Request request) {
   ];
 
   final cards = [
-    for (final r in _pullCards.select([since]))
+    for (final r in _pullCards.select([userId, since]))
       {
         'id': r['id'],
         'deckId': r['deck_id'],
@@ -194,21 +206,25 @@ Response pull(Request request) {
 
   return .ok(
     jsonEncode({'decks': decks, 'cards': cards, 'cursor': cursor}),
-    headers: _json,
+    headers: _jsonHeaders,
   );
 }
 
 final _validHash = RegExp(r'^[a-f0-9]{64}$');
 
-Future<Response> putMedia(Request request, String hash) async {
+Directory _userMediaDir(int userId) =>
+    Directory('${mediaDir.path}/$userId')..createSync(recursive: true);
+
+Future<Response> putMedia(Request req, String hash) async {
   if (!_validHash.hasMatch(hash)) return .badRequest();
 
-  final destination = File('${mediaDir.path}/$hash');
+  final dir = _userMediaDir(_userId(req));
+  final destination = File('${dir.path}/$hash');
   if (destination.existsSync()) return .ok('');
 
-  final tmp = File('${mediaDir.path}/$hash.tmp');
+  final tmp = File('${dir.path}/$hash.tmp');
   try {
-    await request.read().pipe(tmp.openWrite());
+    await req.read().pipe(tmp.openWrite());
     final digest = await sha256.bind(tmp.openRead()).first;
     if (digest.toString() != hash) {
       await tmp.delete();
@@ -225,7 +241,7 @@ Future<Response> putMedia(Request request, String hash) async {
 Future<Response> getMedia(Request req, String hash) async {
   if (!_validHash.hasMatch(hash)) return .badRequest();
 
-  final f = File('${mediaDir.path}/$hash');
+  final f = File('${mediaDir.path}/${_userId(req)}/$hash');
   if (!f.existsSync()) return .notFound('');
 
   return .ok(
@@ -243,7 +259,13 @@ Future<void> main() async {
   initDb();
   prepare();
 
+  final auth = AuthService(db)..purgeExpired();
+  Timer.periodic(const Duration(hours: 1), (_) => auth.purgeExpired());
+
   final router = Router()
+    ..post('/auth/register', auth.register)
+    ..post('/auth/login', auth.login)
+    ..post('/auth/logout', auth.logout)
     ..post('/sync/push', push)
     ..get('/sync/pull', pull)
     ..put('/media/<hash>', putMedia)
@@ -256,7 +278,7 @@ Future<void> main() async {
               isError ? _log.severe(message) : _log.info(message)),
         ),
       )
-      .addMiddleware(auth())
+      .addMiddleware(auth.middleware())
       .addHandler(router.call);
 
   final server = await io.serve(handler, InternetAddress.anyIPv4, 8080);
