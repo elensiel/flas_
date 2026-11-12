@@ -1,11 +1,8 @@
-import 'package:drift/drift.dart' hide Column;
-import 'package:flas_/core/database/provider.dart';
 import 'package:flas_/features/decks/domain/deck_form_data.dart';
 import 'package:flas_/features/decks/presentation/card_draft.dart';
 import 'package:flas_/features/decks/presentation/card_editor.dart';
 import 'package:flas_/features/decks/presentation/deck_info_fields.dart';
 import 'package:flas_/features/decks/providers.dart';
-import 'package:flas_/features/sync/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
