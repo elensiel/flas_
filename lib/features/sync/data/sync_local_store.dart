@@ -58,4 +58,11 @@ class SyncLocalStore {
       .insertOnConflictUpdate(
         SyncStateCompanion.insert(key: 'cursor', value: '$v'),
       );
+
+  Future<void> wipe() => db.transaction(() async {
+    await db.delete(db.cards).go();
+    await db.delete(db.decks).go();
+    await db.delete(db.mediaFiles).go();
+    await (db.delete(db.syncState)..where((s) => s.key.equals('cursor'))).go();
+  });
 }

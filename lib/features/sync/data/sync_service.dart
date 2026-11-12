@@ -6,27 +6,39 @@ import 'package:flas_/features/sync/data/wire_mapper.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
+class UnauthorizedException implements Exception {}
+
 class SyncService {
   SyncService({
     required this.store,
     required this.media,
     required this.baseUrl,
     required this.token,
+    required this.onUnauthorized,
     http.Client? client,
   }) : _http = client ?? http.Client();
 
   final SyncLocalStore store;
   final MediaStore media;
-  final String baseUrl, token;
+  final String baseUrl;
+  final String? Function() token;
+  final void Function() onUnauthorized;
   final http.Client _http;
 
   final _log = Logger('sync');
   bool _running = false;
   bool _pending = false;
-  Map<String, String> get _header => {'authorization': 'Bearer $token'};
+
+  Map<String, String> get _header => {'authorization': 'Bearer ${token()}'};
   static const _timeout = Duration(seconds: 15);
 
+  void _ensureAuthorized(http.Response res) {
+    if (res.statusCode == 401) throw UnauthorizedException();
+  }
+
   Future<void> sync() async {
+    if (token() == null) return;
+
     if (_running) {
       _pending = true;
       return;
@@ -40,6 +52,9 @@ class SyncService {
           await _uploadMedia();
           await _push();
           await _pull();
+        } on UnauthorizedException {
+          onUnauthorized();
+          break;
         } catch (e, st) {
           _log.warning('sync failed', e, st);
           break;
@@ -55,14 +70,15 @@ class SyncService {
       final file = await media.file(m.hash);
       if (file == null || !await file.exists()) continue;
 
-      final response = await _http
+      final res = await _http
           .put(
             Uri.parse('$baseUrl/media/${m.hash}'),
             headers: _header,
             body: await file.readAsBytes(),
           )
           .timeout(_timeout);
-      if (response.statusCode == 200) await media.markUploaded(m.hash);
+      _ensureAuthorized(res);
+      if (res.statusCode == 200) await media.markUploaded(m.hash);
     }
   }
 
@@ -71,7 +87,7 @@ class SyncService {
     final cards = await store.dirtyCards();
     if (decks.isEmpty && cards.isEmpty) return;
 
-    final response = await _http
+    final res = await _http
         .post(
           Uri.parse('$baseUrl/sync/push'),
           headers: _header,
@@ -81,8 +97,9 @@ class SyncService {
           }),
         )
         .timeout(_timeout);
-    if (response.statusCode != 200) {
-      throw Exception('push failed: ${response.statusCode}');
+    _ensureAuthorized(res);
+    if (res.statusCode != 200) {
+      throw Exception('push failed: ${res.statusCode}');
     }
 
     for (final d in decks) {
@@ -95,14 +112,15 @@ class SyncService {
 
   Future<void> _pull() async {
     final since = await store.cursor();
-    final response = await _http
+    final res = await _http
         .get(Uri.parse('$baseUrl/sync/pull?since=$since'), headers: _header)
         .timeout(_timeout);
-    if (response.statusCode != 200) {
-      throw Exception('pull failed: ${response.statusCode}');
+    _ensureAuthorized(res);
+    if (res.statusCode != 200) {
+      throw Exception('pull failed: ${res.statusCode}');
     }
 
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
 
     for (final d in body['decks'] as List) {
       await store.applyRemoteDeck(
@@ -121,11 +139,12 @@ class SyncService {
 
   Future<void> _fetchMedia(String? hash) async {
     if (hash == null || await media.file(hash) != null) return;
-    final response = await _http
+    final res = await _http
         .get(Uri.parse('$baseUrl/media/$hash'), headers: _header)
         .timeout(_timeout);
-    if (response.statusCode == 200) {
-      await media.saveBytes(hash, response.bodyBytes);
+    _ensureAuthorized(res);
+    if (res.statusCode == 200) {
+      await media.saveBytes(hash, res.bodyBytes);
     }
   }
 }
