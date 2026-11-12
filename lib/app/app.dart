@@ -23,7 +23,7 @@ class _MainAppState extends ConsumerState<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    final appearance = ref.watch(appearanceProvder);
+    final appearance = ref.watch(appearanceProvider);
     final fontFamily = AppFonts.byId(appearance.fontId).family;
     final icons = appearance.iconSet.icons;
     final motion = AppMotion(scale: appearance.motion.scale);

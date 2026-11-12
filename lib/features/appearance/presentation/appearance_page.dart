@@ -10,8 +10,8 @@ class AppearancePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final current = ref.watch(appearanceProvder);
-    final notifier = ref.read(appearanceProvder.notifier);
+    final current = ref.watch(appearanceProvider);
+    final notifier = ref.read(appearanceProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Appearance')),

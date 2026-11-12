@@ -11,7 +11,7 @@ final initialAppearanceProvider = Provider<AppearanceSettings>(
   (_) => throw UnimplementedError(),
 );
 
-final appearanceProvder =
+final appearanceProvider =
     NotifierProvider<AppearanceNotifier, AppearanceSettings>(
       AppearanceNotifier.new,
     );
