@@ -5,6 +5,7 @@ import 'package:flas_/features/media/providers.dart';
 import 'package:flas_/features/sync/data/sync_local_store.dart';
 import 'package:flas_/features/sync/data/sync_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final syncLocalStoreProvider = Provider(
   (ref) => SyncLocalStore(db: ref.watch(dbProvider)),
@@ -15,7 +16,7 @@ final syncServiceProvider = Provider(
     store: ref.watch(syncLocalStoreProvider),
     media: ref.watch(mediaStoreProvider),
     baseUrl: apiBaseUrl,
-    token: () => ref.read(authProvider),
-    onUnauthorized: () => ref.read(authProvider.notifier).expire(),
+    token: () => Supabase.instance.client.auth.currentSession?.accessToken,
+    onUnauthorized: () => ref.read(authProvider.notifier).signOut(),
   ),
 );

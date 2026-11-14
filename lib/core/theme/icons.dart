@@ -23,6 +23,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
     required this.swapHoriz,
     required this.warning,
     required this.palette,
+    required this.person,
   });
 
   final IconData add,
@@ -37,6 +38,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
       menu,
       moreVert,
       palette,
+      person,
       photoCamera,
       photoLibrary,
       playArrow,
@@ -59,6 +61,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
     menu: Icons.menu_rounded,
     moreVert: Icons.more_vert_rounded,
     palette: Icons.palette_rounded,
+    person: Icons.person_rounded,
     photoCamera: Icons.photo_camera_rounded,
     photoLibrary: Icons.photo_library_rounded,
     playArrow: Icons.play_arrow_rounded,
@@ -82,6 +85,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
     menu: Icons.menu,
     moreVert: Icons.more_vert_outlined,
     palette: Icons.palette_outlined,
+    person: Icons.person_outline,
     photoCamera: Icons.photo_camera_outlined,
     photoLibrary: Icons.photo_library_outlined,
     playArrow: Icons.play_arrow_outlined,

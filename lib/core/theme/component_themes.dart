@@ -3,36 +3,36 @@ import 'package:flutter/material.dart';
 class ComponentThemes {
   const ComponentThemes._();
 
-  static AppBarTheme appBar(ColorScheme s, String? font) => AppBarTheme(
-    backgroundColor: s.surface,
-    foregroundColor: s.onSurface,
+  static AppBarTheme appBar(ColorScheme colors, String? font) => AppBarTheme(
+    backgroundColor: colors.surface,
+    foregroundColor: colors.onSurface,
     scrolledUnderElevation: 0,
     titleTextStyle: TextStyle(
       fontFamily: font,
       fontSize: 24,
       fontWeight: .w600,
-      color: s.onSurface,
+      color: colors.onSurface,
     ),
   );
 
-  static BottomSheetThemeData bottomSheet(ColorScheme s) =>
+  static BottomSheetThemeData bottomSheet(ColorScheme colors) =>
       BottomSheetThemeData(
-        backgroundColor: s.surfaceContainerLow,
+        backgroundColor: colors.surfaceContainerLow,
         showDragHandle: true,
       );
 
-  static DividerThemeData divider(ColorScheme s) =>
-      DividerThemeData(color: s.outlineVariant, space: 1);
+  static DividerThemeData divider(ColorScheme colors) =>
+      DividerThemeData(color: colors.outlineVariant, space: 1);
 
-  static FloatingActionButtonThemeData fab(ColorScheme s) =>
+  static FloatingActionButtonThemeData fab(ColorScheme colors) =>
       FloatingActionButtonThemeData(
-        backgroundColor: s.primary,
-        foregroundColor: s.onPrimary,
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: .circular(16)),
       );
 
-  static InputDecorationTheme inputDecoration(ColorScheme s) {
+  static InputDecorationTheme inputDecoration(ColorScheme colors) {
     const borderWidth = 1.5;
     const focusedBorderWidth = 2.0;
 
@@ -42,36 +42,36 @@ class ComponentThemes {
     );
 
     return InputDecorationTheme(
-      border: border(s.outlineVariant, borderWidth),
-      enabledBorder: border(s.outlineVariant, borderWidth),
-      focusedBorder: border(s.outline, focusedBorderWidth),
-      errorBorder: border(s.error, borderWidth),
-      focusedErrorBorder: border(s.error, focusedBorderWidth),
+      border: border(colors.outlineVariant, borderWidth),
+      enabledBorder: border(colors.outlineVariant, borderWidth),
+      focusedBorder: border(colors.outline, focusedBorderWidth),
+      errorBorder: border(colors.error, borderWidth),
+      focusedErrorBorder: border(colors.error, focusedBorderWidth),
     );
   }
 
-  static ListTileThemeData listTile(ColorScheme s) => ListTileThemeData(
-    iconColor: s.onSurface,
+  static ListTileThemeData listTile(ColorScheme colors) => ListTileThemeData(
+    iconColor: colors.onSurface,
     shape: RoundedRectangleBorder(borderRadius: .circular(12)),
   );
 
-  static NavigationBarThemeData navigationBar(ColorScheme s) =>
+  static NavigationBarThemeData navigationBar(ColorScheme colors) =>
       NavigationBarThemeData(
-        backgroundColor: s.surface,
+        backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         labelTextStyle: WidgetStateProperty.resolveWith(
-          (st) => TextStyle(
-            fontWeight: st.contains(WidgetState.selected) ? .w600 : .w400,
+          (state) => TextStyle(
+            fontWeight: state.contains(WidgetState.selected) ? .w600 : .w400,
           ),
         ),
       );
 
-  static PopupMenuThemeData popupMenu(ColorScheme s) => PopupMenuThemeData(
-    color: s.surfaceContainerHigh,
+  static PopupMenuThemeData popupMenu(ColorScheme colors) => PopupMenuThemeData(
+    color: colors.surfaceContainerHigh,
     shape: RoundedRectangleBorder(
       borderRadius: .circular(12),
-      side: BorderSide(color: s.outlineVariant),
+      side: BorderSide(color: colors.outlineVariant),
     ),
   );
 }

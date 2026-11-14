@@ -65,4 +65,14 @@ class SyncLocalStore {
     await db.delete(db.mediaFiles).go();
     await (db.delete(db.syncState)..where((s) => s.key.equals('cursor'))).go();
   });
+
+  Future<String?> lastUserId() async => (await (db.select(
+    db.syncState,
+  )..where((state) => state.key.equals('user_id'))).getSingleOrNull())?.value;
+
+  Future<void> setLastUserId(String id) => db
+      .into(db.syncState)
+      .insertOnConflictUpdate(
+        SyncStateCompanion.insert(key: 'user_id', value: id),
+      );
 }

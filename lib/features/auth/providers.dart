@@ -1,47 +1,44 @@
-import 'package:flas_/core/constants.dart';
-import 'package:flas_/features/auth/data/auth_api.dart';
-import 'package:flas_/features/auth/data/token_store.dart';
 import 'package:flas_/features/sync/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-final tokenStoreProvider = Provider((_) => TokenStore());
-final authApiProvider = Provider((_) => AuthApi(baseUrl: apiBaseUrl));
+GoTrueClient get _auth => Supabase.instance.client.auth;
 
-final initialTokenProvider = Provider<String?>(
-  (_) => throw UnimplementedError(),
-);
+final authProvider = NotifierProvider<AuthNotifier, Session?>(AuthNotifier.new);
 
-final authProvider = NotifierProvider<AuthNotifier, String?>(AuthNotifier.new);
-
-class AuthNotifier extends Notifier<String?> {
+class AuthNotifier extends Notifier<Session?> {
   @override
-  String? build() => ref.read(initialTokenProvider);
+  Session? build() {
+    final sub = _auth.onAuthStateChange.listen((e) async {
+      state = e.session;
+      final session = e.session;
+      if (e.event == .signedIn && session != null) {
+        await _adopt(session.user.id);
+        ref.read(syncServiceProvider).sync();
+      }
+    });
+    ref.onDispose(sub.cancel);
+    return _auth.currentSession;
+  }
+
+  Future<void> _adopt(String userId) async {
+    final store = ref.read(syncLocalStoreProvider);
+    final last = await store.lastUserId();
+    if (last != null && last != userId) await store.wipe();
+    await store.setLastUserId(userId);
+  }
 
   Future<void> signIn(String email, String password) =>
-      _start(ref.read(authApiProvider).login(email, password));
+      _auth.signInWithPassword(email: email.trim(), password: password);
 
-  Future<void> register(String email, String password) =>
-      _start(ref.read(authApiProvider).login(email, password));
+  Future<bool> register(String email, String password) async {
+    final res = await _auth.signUp(email: email.trim(), password: password);
+    return res.session != null;
+  }
 
-  Future<void> singOut() async {
-    final token = state;
-    if (token == null) return;
-
-    await expire();
+  Future<void> signOut() async {
     try {
-      await ref.read(authApiProvider).logout(token);
+      await _auth.signOut(scope: .local);
     } catch (_) {}
-  }
-
-  Future<void> expire() async {
-    state = null;
-    await ref.read(tokenStoreProvider).clear();
-  }
-
-  Future<void> _start(Future<String> req) async {
-    final token = await req;
-    await ref.read(tokenStoreProvider).write(token);
-    state = token;
-    ref.read(syncServiceProvider).sync();
   }
 }

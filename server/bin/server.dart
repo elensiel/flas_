@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
-import 'package:flas_server/auth.dart';
 import 'package:flas_server/logging.dart';
+import 'package:flas_server/supabase_auth.dart';
 import 'package:logging/logging.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
@@ -20,22 +20,8 @@ PRAGMA journal_mode=WAL;
 PRAGMA synchronous=NORMAL;
 PRAGMA foreign_keys=ON;
 
-CREATE TABLE IF NOT EXISTS users(
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  email TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
-  created_at INTEGER NOT NULL
-)
-
-CREATE TABLE IF NOT EXISTS sessions(
-  token_hash TEXT PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  expires_at INTEGER NOT NULL
-)
-CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
-
 CREATE TABLE IF NOT EXISTS decks( 
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL,
   id TEXT PRIMARY KEY, 
   name TEXT NOT NULL, 
   description TEXT NOT NULL, 
@@ -46,7 +32,7 @@ CREATE TABLE IF NOT EXISTS decks(
 );
 
 CREATE TABLE IF NOT EXISTS cards(
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL,
   id TEXT PRIMARY KEY, 
   deck_id TEXT NOT NULL,
   front_text TEXT NOT NULL, 
@@ -123,9 +109,9 @@ void prepare() {
 int currentSeq() => _currentSeq.select().first['value'] as int;
 int nextSeq() => _nextSeq.select().first['value'] as int;
 
-int _userId(Request req) => req.context['userId'] as int;
+String _userId(Request req) => req.context['userId'] as String;
 
-final _jsonHeaders = {'content-type': 'application/json'};
+final _header = {'content-type': 'application/json'};
 
 Future<Response> push(Request req) async {
   final userId = _userId(req);
@@ -165,12 +151,12 @@ Future<Response> push(Request req) async {
       ]);
     }
     db.execute('COMMIT');
-  } catch (e, stackTrace) {
+  } catch (e, st) {
     db.execute('ROLLBACK');
-    _log.warning('push failed: $e', stackTrace);
+    _log.warning('push failed: $e', st);
     return .badRequest(body: 'invalid payload');
   }
-  return .ok('{}', headers: _jsonHeaders);
+  return .ok('{}', headers: _header);
 }
 
 Response pull(Request req) {
@@ -179,58 +165,58 @@ Response pull(Request req) {
   final cursor = currentSeq();
 
   final decks = [
-    for (final r in _pullDecks.select([userId, since]))
+    for (final d in _pullDecks.select([userId, since]))
       {
-        'id': r['id'],
-        'name': r['name'],
-        'description': r['description'],
-        'updatedAt': r['updated_at'],
-        'deletedAt': r['deleted_at'],
+        'id': d['id'],
+        'name': d['name'],
+        'description': d['description'],
+        'updatedAt': d['updated_at'],
+        'deletedAt': d['deleted_at'],
       },
   ];
 
   final cards = [
-    for (final r in _pullCards.select([userId, since]))
+    for (final c in _pullCards.select([userId, since]))
       {
-        'id': r['id'],
-        'deckId': r['deck_id'],
-        'frontText': r['front_text'],
-        'frontImage': r['front_image'],
-        'backText': r['back_text'],
-        'backImage': r['back_image'],
-        'position': r['position'],
-        'updatedAt': r['updated_at'],
-        'deletedAt': r['deleted_at'],
+        'id': c['id'],
+        'deckId': c['deck_id'],
+        'frontText': c['front_text'],
+        'frontImage': c['front_image'],
+        'backText': c['back_text'],
+        'backImage': c['back_image'],
+        'position': c['position'],
+        'updatedAt': c['updated_at'],
+        'deletedAt': c['deleted_at'],
       },
   ];
 
   return .ok(
     jsonEncode({'decks': decks, 'cards': cards, 'cursor': cursor}),
-    headers: _jsonHeaders,
+    headers: _header,
   );
 }
 
 final _validHash = RegExp(r'^[a-f0-9]{64}$');
 
-Directory _userMediaDir(int userId) =>
+Directory _userMediaDir(String userId) =>
     Directory('${mediaDir.path}/$userId')..createSync(recursive: true);
 
-Future<Response> putMedia(Request req, String hash) async {
+Future<Response> putMedia(Request request, String hash) async {
   if (!_validHash.hasMatch(hash)) return .badRequest();
 
-  final dir = _userMediaDir(_userId(req));
-  final destination = File('${dir.path}/$hash');
-  if (destination.existsSync()) return .ok('');
+  final dir = _userMediaDir(_userId(request));
+  final dest = File('${dir.path}/$hash');
+  if (dest.existsSync()) return .ok('');
 
   final tmp = File('${dir.path}/$hash.tmp');
   try {
-    await req.read().pipe(tmp.openWrite());
+    await request.read().pipe(tmp.openWrite());
     final digest = await sha256.bind(tmp.openRead()).first;
     if (digest.toString() != hash) {
       await tmp.delete();
       return .badRequest(body: 'hash mismatch');
     }
-    await tmp.rename(destination.path);
+    await tmp.rename(dest.path);
   } catch (_) {
     if (tmp.existsSync()) await tmp.delete();
     return .internalServerError();
@@ -238,10 +224,10 @@ Future<Response> putMedia(Request req, String hash) async {
   return .ok('');
 }
 
-Future<Response> getMedia(Request req, String hash) async {
+Future<Response> getMedia(Request request, String hash) async {
   if (!_validHash.hasMatch(hash)) return .badRequest();
 
-  final f = File('${mediaDir.path}/${_userId(req)}/$hash');
+  final f = File('${mediaDir.path}/${_userId(request)}/$hash');
   if (!f.existsSync()) return .notFound('');
 
   return .ok(
@@ -255,17 +241,19 @@ Future<Response> getMedia(Request req, String hash) async {
 }
 
 Future<void> main() async {
+  final url = Platform.environment['https://twjsetxylgobmwbzglfy.supabase.co'];
+  final key =
+      Platform.environment['sb_publishable_sVuCdkdjG_KWLeKUqncP7Q_2FSXoOhB'];
+  if (url == null || key == null) {
+    stderr.writeln('SUPABASE_URL and SUPABASE_PUBLISHER_KEY are required');
+    exit(1);
+  }
+
   initlogging();
   initDb();
   prepare();
 
-  final auth = AuthService(db)..purgeExpired();
-  Timer.periodic(const Duration(hours: 1), (_) => auth.purgeExpired());
-
   final router = Router()
-    ..post('/auth/register', auth.register)
-    ..post('/auth/login', auth.login)
-    ..post('/auth/logout', auth.logout)
     ..post('/sync/push', push)
     ..get('/sync/pull', pull)
     ..put('/media/<hash>', putMedia)
@@ -278,7 +266,7 @@ Future<void> main() async {
               isError ? _log.severe(message) : _log.info(message)),
         ),
       )
-      .addMiddleware(auth.middleware())
+      .addMiddleware(supabaseAuth(url, key))
       .addHandler(router.call);
 
   final server = await io.serve(handler, InternetAddress.anyIPv4, 8080);
