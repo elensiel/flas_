@@ -1,6 +1,6 @@
 import 'package:flas_/core/database/app_db.dart';
 import 'package:flas_/features/appearance/domain/appearance_settings.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class AppearanceStore {
   const AppearanceStore(this.db);

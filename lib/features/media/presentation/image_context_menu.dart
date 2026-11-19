@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flas_/core/theme/theme_context.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 enum ImageAction { library, camera, remove }
 

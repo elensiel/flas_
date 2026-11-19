@@ -3,7 +3,7 @@ import 'package:flas_/features/decks/presentation/card_draft.dart';
 import 'package:flas_/features/decks/presentation/card_editor.dart';
 import 'package:flas_/features/decks/presentation/deck_info_fields.dart';
 import 'package:flas_/features/decks/providers.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DeckBuilderPage extends ConsumerStatefulWidget {

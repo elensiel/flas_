@@ -4,7 +4,7 @@ import 'package:flas_/core/theme/typography.dart';
 import 'package:flas_/features/appearance/providers.dart';
 import 'package:flas_/features/sync/providers.dart';
 import 'package:flas_/shell/main_shell.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MainApp extends ConsumerStatefulWidget {

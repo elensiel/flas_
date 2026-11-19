@@ -2,7 +2,7 @@ import 'package:flas_/core/theme/typography.dart';
 import 'package:flas_/features/appearance/domain/appearance_settings.dart';
 import 'package:flas_/features/appearance/providers.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AppearancePage extends ConsumerWidget {

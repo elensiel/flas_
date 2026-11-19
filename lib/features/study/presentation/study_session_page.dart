@@ -4,7 +4,7 @@ import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/decks/providers.dart';
 import 'package:flas_/features/study/presentation/flashcard_view.dart';
 import 'package:flas_/features/study/presentation/progress_bar.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class StudySessionPage extends ConsumerStatefulWidget {

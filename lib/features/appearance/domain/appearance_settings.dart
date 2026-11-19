@@ -1,5 +1,5 @@
 import 'package:flas_/core/theme/icons.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 enum AppIconSet {
   rounded(AppIcons.rounded),

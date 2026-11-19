@@ -1,6 +1,6 @@
 import 'package:flas_/core/theme/icons.dart';
 import 'package:flas_/core/theme/motion.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 extension ThemeContext on BuildContext {
   AppIcons get icons => Theme.of(this).extension<AppIcons>()!;

@@ -4,7 +4,7 @@ import 'package:flas_/features/decks/presentation/deck_builder_page.dart';
 import 'package:flas_/features/decks/providers.dart';
 import 'package:flas_/features/study/presentation/study_session_page.dart';
 import 'package:flas_/features/sync/providers.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class DeckTile extends ConsumerWidget {

@@ -1,7 +1,7 @@
 import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/decks/presentation/deck_list_page.dart';
 import 'package:flas_/features/settings/presentation/menu_page.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});

@@ -1,5 +1,5 @@
 import 'package:flas_/core/theme/theme_context.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ProgressBar extends StatelessWidget {
   const ProgressBar({

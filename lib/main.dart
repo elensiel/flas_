@@ -5,7 +5,7 @@ import 'package:flas_/core/database/provider.dart';
 import 'package:flas_/core/logging.dart';
 import 'package:flas_/features/appearance/data/appearance_store.dart';
 import 'package:flas_/features/appearance/providers.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

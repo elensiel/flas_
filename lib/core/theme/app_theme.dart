@@ -2,7 +2,7 @@ import 'package:flas_/core/theme/color_schemes.dart';
 import 'package:flas_/core/theme/component_themes.dart';
 import 'package:flas_/core/theme/icons.dart';
 import 'package:flas_/core/theme/motion.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class AppTheme {
   const AppTheme._();

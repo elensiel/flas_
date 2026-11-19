@@ -2,7 +2,7 @@ import 'package:flas_/core/constants.dart';
 import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/media/providers.dart';
 import 'package:flip_card/flip_card.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FlashcardView extends ConsumerWidget {

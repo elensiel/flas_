@@ -1,6 +1,6 @@
 import 'package:flas_/core/database/app_db.dart';
 import 'package:flas_/features/decks/domain/deck_form_data.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class CardDraft {
   CardDraft({
