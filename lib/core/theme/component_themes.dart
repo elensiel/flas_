@@ -1,3 +1,4 @@
+import 'package:flas_/core/theme/motion.dart';
 import 'package:material_ui/material_ui.dart';
 
 class ComponentThemes {
@@ -23,6 +24,16 @@ class ComponentThemes {
 
   static DividerThemeData divider(ColorScheme colors) =>
       DividerThemeData(color: colors.outlineVariant, space: 1);
+
+  static ExpansionTileThemeData expansionTile(AppMotion m) =>
+      ExpansionTileThemeData(
+        expansionAnimationStyle: AnimationStyle(
+          duration: m.normal,
+          reverseDuration: m.normal,
+          curve: m.standard,
+          reverseCurve: m.standard,
+        ),
+      );
 
   static FloatingActionButtonThemeData fab(ColorScheme colors) =>
       FloatingActionButtonThemeData(

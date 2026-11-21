@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flas_/core/theme/theme_context.dart';
+import 'package:flas_/core/widgets/show_app_modal_bottom_sheet.dart';
 import 'package:flas_/features/media/presentation/image_context_menu.dart';
 import 'package:flas_/features/media/providers.dart';
 import 'package:material_ui/material_ui.dart';
@@ -32,9 +33,8 @@ class ImageField extends ConsumerWidget {
   }
 
   Future<void> _addImage(BuildContext context, WidgetRef ref) async {
-    final source = await showModalBottomSheet<ImageSource>(
+    final source = await showAppModalBottomSheet<ImageSource>(
       context: context,
-      showDragHandle: true,
       builder: (sheetContext) => SafeArea(
         child: Column(
           mainAxisSize: .min,
@@ -66,6 +66,8 @@ class ImageField extends ConsumerWidget {
       PageRouteBuilder(
         opaque: false,
         barrierColor: Colors.transparent,
+        transitionDuration: context.motion.slow,
+        reverseTransitionDuration: context.motion.normal,
         pageBuilder: (_, animation, _) =>
             ImageContextMenu(file: file, heroTag: heroTag),
       ),

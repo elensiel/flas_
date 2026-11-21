@@ -1,5 +1,6 @@
 import 'package:flas_/core/constants.dart';
 import 'package:flas_/core/theme/theme_context.dart';
+import 'package:flas_/core/widgets/app_popup_menu_button.dart';
 import 'package:flas_/core/widgets/clearable_text_field.dart';
 import 'package:flas_/features/decks/presentation/card_draft.dart';
 import 'package:flas_/features/media/presentation/image_field.dart';
@@ -54,18 +55,7 @@ class _CardEditorState extends State<CardEditor> {
             ),
           ],
         ),
-        trailing: PopupMenuButton<String>(
-          icon: Icon(context.icons.moreVert),
-          onSelected: (value) {
-            switch (value) {
-              case 'swap':
-                widget.card.swap();
-                break;
-              case 'delete':
-                widget.onDelete();
-                break;
-            }
-          },
+        trailing: AppPopupMenuButton<String>(
           itemBuilder: (context) => [
             PopupMenuItem(
               value: 'swap',
@@ -82,6 +72,17 @@ class _CardEditorState extends State<CardEditor> {
               ),
             ),
           ],
+          onSelected: (value) {
+            switch (value) {
+              case 'swap':
+                widget.card.swap();
+                break;
+              case 'delete':
+                widget.onDelete();
+                break;
+            }
+          },
+          icon: Icon(context.icons.moreVert),
         ),
         children: [
           Column(

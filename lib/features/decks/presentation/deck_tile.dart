@@ -1,5 +1,6 @@
 import 'package:flas_/core/database/app_db.dart';
 import 'package:flas_/core/theme/theme_context.dart';
+import 'package:flas_/core/widgets/show_app_modal_bottom_sheet.dart';
 import 'package:flas_/features/decks/presentation/deck_builder_page.dart';
 import 'package:flas_/features/decks/providers.dart';
 import 'package:flas_/features/study/presentation/study_session_page.dart';
@@ -40,7 +41,7 @@ class DeckTile extends ConsumerWidget {
   void _showActions(BuildContext context, WidgetRef ref) {
     final s = Theme.of(context).colorScheme;
 
-    showModalBottomSheet(
+    showAppModalBottomSheet(
       context: context,
       builder: (sheetContext) => SafeArea(
         child: Column(
