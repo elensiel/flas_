@@ -20,7 +20,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   final _password = TextEditingController();
   final _confirmPassword = TextEditingController();
 
-  bool _register = true, _busy = false;
+  bool _register = false, _busy = false;
   String? _error, _info;
 
   @override

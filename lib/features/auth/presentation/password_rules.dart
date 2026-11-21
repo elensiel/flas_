@@ -1,3 +1,4 @@
+import 'package:flas_/core/theme/theme_context.dart';
 import 'package:material_ui/material_ui.dart';
 
 class PasswordRules {
@@ -49,7 +50,7 @@ class PasswordRuleTiles extends StatelessWidget {
               return Row(
                 children: [
                   Icon(
-                    passed ? Icons.check_circle : Icons.cancel,
+                    passed ? context.icons.checkCircle : context.icons.cancel,
                     color: password.isNotEmpty ? color : null,
                     size: 18,
                   ),

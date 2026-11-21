@@ -41,4 +41,24 @@ class AuthNotifier extends Notifier<Session?> {
       await _auth.signOut(scope: .local);
     } catch (_) {}
   }
+
+  Future<void> _verifyPassword(String password) async {
+    final email = _auth.currentUser?.email;
+    if (email == null) throw AuthException('Not signed in');
+    await _auth.signInWithPassword(email: email, password: password);
+  }
+
+  Future<bool> changeEmail(String currentPassword, String newEmail) async {
+    await _verifyPassword(currentPassword);
+    final res = await _auth.updateUser(UserAttributes(email: newEmail.trim()));
+    return res.user?.newEmail != null;
+  }
+
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    await _verifyPassword(currentPassword);
+    await _auth.updateUser(UserAttributes(password: newPassword));
+  }
 }
