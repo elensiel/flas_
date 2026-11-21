@@ -7,7 +7,7 @@ void initlogging({Level level = .INFO}) {
     debugPrint(
       '${log.time.toIso8601String()} [${log.level.name}] ${log.loggerName}: ${log.message}',
     );
-    if (log.error != null) debugPrint('log.error');
-    if (log.stackTrace != null) debugPrint('log.stackTrace');
+    if (log.error != null) debugPrint('${log.error}');
+    if (log.stackTrace != null) debugPrint('${log.stackTrace}');
   });
 }
