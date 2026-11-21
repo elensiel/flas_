@@ -25,6 +25,7 @@ class DeckSaveService {
         await _insert(deckId, i, form.cards[i]);
       }
     });
+    syncService.sync();
   }
 
   Future<void> update(String deckId, DeckFormData form) async {
