@@ -1,6 +1,6 @@
 import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/appearance/presentation/appearance_page.dart';
-import 'package:flas_/features/auth/presentation/login_page.dart';
+import 'package:flas_/features/auth/presentation/auth_page.dart';
 import 'package:material_ui/material_ui.dart';
 
 class MenuPage extends StatelessWidget {
