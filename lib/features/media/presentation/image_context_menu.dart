@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flas_/core/theme/theme_context.dart';
+import 'package:flas_/features/media/presentation/staggered_tile.dart';
 import 'package:material_ui/material_ui.dart';
 
 enum ImageAction { library, camera, remove }
@@ -81,19 +82,33 @@ class _ActionsMenu extends StatelessWidget {
       child: Column(
         mainAxisSize: .min,
         children: [
-          _tile(
-            context,
-            context.icons.photoLibrary,
-            'Choose from Library',
-            .library,
+          StaggeredTile(
+            index: 0,
+            child: _tile(
+              context,
+              context.icons.photoLibrary,
+              'Choose from Library',
+              .library,
+            ),
           ),
-          _tile(context, context.icons.photoCamera, 'Take photo', .camera),
-          _tile(
-            context,
-            context.icons.delete,
-            'Remove photo',
-            .remove,
-            color: error,
+          StaggeredTile(
+            index: 1,
+            child: _tile(
+              context,
+              context.icons.photoCamera,
+              'Take photo',
+              .camera,
+            ),
+          ),
+          StaggeredTile(
+            index: 2,
+            child: _tile(
+              context,
+              context.icons.delete,
+              'Remove photo',
+              .remove,
+              color: error,
+            ),
           ),
         ],
       ),
