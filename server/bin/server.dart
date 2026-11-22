@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flas_server/logging.dart';
+import 'package:flas_server/src/account/account_handler.dart';
 import 'package:flas_server/src/app.dart';
 import 'package:flas_server/src/config.dart';
 import 'package:flas_server/src/database/database.dart';
@@ -25,10 +26,19 @@ Future<void> main() async {
   final log = Logger('server');
 
   final db = openAppDatabase(config.dbPath);
+  final syncRepository = SyncRepository(db);
+  final mediaStorage = MediaStorage(config.mediaPath);
+
   final handler = buildHandler(
     auth: supabaseAuth(config.supabaseUrl, config.supabaseKey),
-    sync: SyncHandler(SyncRepository(db)),
-    media: MediaHandler(MediaStorage(config.mediaPath)),
+    sync: SyncHandler(syncRepository),
+    media: MediaHandler(mediaStorage),
+    account: AccountHandler(
+      sync: syncRepository,
+      media: mediaStorage,
+      supabaseUrl: config.supabaseUrl,
+      secretKey: config.supabaseSecretKey,
+    ),
   );
 
   final server = await io.serve(handler, InternetAddress.anyIPv4, config.port);

@@ -38,4 +38,9 @@ class MediaStorage {
       rethrow;
     }
   }
+
+  Future<void> delete(String userId) async {
+    final dir = Directory('${_root.path}/$userId');
+    if (await dir.exists()) await dir.delete(recursive: true);
+  }
 }

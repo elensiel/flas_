@@ -144,4 +144,16 @@ class SyncRepository {
       cursor: cursor,
     );
   }
+
+  void deleteUser(String userId) {
+    _db.execute('BEGIN');
+    try {
+      _db.execute('DELETE FROM cards WHERE user_id = ?', [userId]);
+      _db.execute('DELETE FROM decks WHERE user_id = ?', [userId]);
+      _db.execute('COMMIT');
+    } catch (_) {
+      _db.execute('ROLLBACK');
+      rethrow;
+    }
+  }
 }

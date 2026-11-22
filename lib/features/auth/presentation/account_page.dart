@@ -2,6 +2,7 @@ import 'package:flas_/core/constants.dart';
 import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/auth/presentation/change_email_page.dart';
 import 'package:flas_/features/auth/presentation/change_password_page.dart';
+import 'package:flas_/features/auth/presentation/delete_account_page.dart';
 import 'package:flas_/features/auth/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -52,6 +53,14 @@ class AccountPage extends ConsumerWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ChangePasswordPage()),
+            ),
+          ),
+          ListTile(
+            leading: Icon(context.icons.delete),
+            title: const Text('Delete account'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const DeleteAccountPage()),
             ),
           ),
           const Divider(),
