@@ -39,7 +39,7 @@ class DeckTile extends ConsumerWidget {
       );
 
   void _showActions(BuildContext context, WidgetRef ref) {
-    final s = Theme.of(context).colorScheme;
+    final colors = Theme.of(context).colorScheme;
 
     showAppModalBottomSheet(
       context: context,
@@ -74,8 +74,8 @@ class DeckTile extends ConsumerWidget {
               },
             ),
             ListTile(
-              leading: Icon(context.icons.delete, color: s.error),
-              title: Text('Delete', style: TextStyle(color: s.error)),
+              leading: Icon(context.icons.delete, color: colors.error),
+              title: Text('Delete', style: TextStyle(color: colors.error)),
               onTap: () {
                 Navigator.pop(sheetContext);
                 _confirmDelete(context, ref);
@@ -91,13 +91,13 @@ class DeckTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cardCount = ref.watch(cardCountProvider(deck.id)).value ?? 0;
     final theme = Theme.of(context);
-    final s = theme.colorScheme;
+    final colors = theme.colorScheme;
 
     return Material(
       clipBehavior: .antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: .circular(16),
-        side: BorderSide(color: s.outline, width: 1.5),
+        side: BorderSide(color: colors.outline, width: 1.5),
       ),
       child: InkWell(
         onTap: () => _showActions(context, ref),
@@ -124,7 +124,7 @@ class DeckTile extends ConsumerWidget {
                       maxLines: 2,
                       overflow: .ellipsis,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: s.onSurfaceVariant,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -133,7 +133,7 @@ class DeckTile extends ConsumerWidget {
               Container(
                 padding: const .symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  border: .all(color: s.outlineVariant, width: 1.5),
+                  border: .all(color: colors.outlineVariant, width: 1.5),
                   borderRadius: .circular(20),
                 ),
                 child: Text(
