@@ -1,3 +1,4 @@
+import 'package:flas_/core/constants.dart';
 import 'package:flas_/features/decks/domain/deck_form_data.dart';
 import 'package:flas_/features/decks/presentation/card_draft.dart';
 import 'package:flas_/features/decks/presentation/card_editor.dart';
@@ -132,14 +133,19 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
             children: [
               DeckInfoFields(name: _name, description: _description),
               Divider(thickness: 3),
-              // Padding(
-              //   padding: .symmetric(horizontal: screenMargin),
-              //   child: Text(
-              //     'Cards',
-              //     style: Theme.of(context).textTheme.titleLarge,
-              //   ),
-              // ),
             ],
+          ),
+
+          footer: SizedBox(
+            height:
+                (Theme.of(context)
+                        .floatingActionButtonTheme
+                        .sizeConstraints
+                        ?.minHeight ??
+                    56) +
+                kFloatingActionButtonMargin +
+                MediaQuery.viewPaddingOf(context).bottom +
+                screenMargin,
           ),
 
           children: [
