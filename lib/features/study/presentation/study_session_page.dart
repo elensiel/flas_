@@ -19,6 +19,16 @@ class StudySessionPage extends ConsumerStatefulWidget {
 
 class _StudySessionPageState extends ConsumerState<StudySessionPage> {
   int _cardIndex = 0;
+  bool _shuffled = false;
+  List<int> _order = [];
+
+  List<int> _newOrder(int length) => List.generate(length, (i) => i)..shuffle();
+
+  void _toggleShuffle(int cardCount) => setState(() {
+    _shuffled = !_shuffled;
+    _cardIndex = 0;
+    if (_shuffled) _order = _newOrder(cardCount);
+  });
 
   void _move(int delta, int length) {
     final next = _cardIndex + delta;
@@ -36,31 +46,46 @@ class _StudySessionPageState extends ConsumerState<StudySessionPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.deck.name), centerTitle: true),
+      appBar: AppBar(
+        title: Text(widget.deck.name),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            isSelected: _shuffled,
+            icon: Icon(
+              _shuffled ? context.icons.shuffleOn : context.icons.shuffleOff,
+            ),
+            onPressed: cardCount > 1 ? () => _toggleShuffle(cardCount) : null,
+          ),
+        ],
+      ),
 
       body: cardsAsync.when(
         data: (cards) {
           // ? i dont think we need this
           // ? since we ensure that there is no empty deck
           // ? upon creation
-          // if (cards.isEmpty) {
-          //   return Center(
-          //     child: Column(
-          //       mainAxisSize: .min,
-          //       spacing: 12,
-          //       children: [
-          //         Icon(
-          //           context.icons.style,
-          //           size: 56,
-          //           color: colorScheme.outlineVariant,
-          //         ),
-          //         Text('No cards', style: theme.textTheme.titleMedium),
-          //       ],
-          //     ),
-          //   );
-          // }
+          if (cards.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: .min,
+                spacing: 12,
+                children: [
+                  Icon(
+                    context.icons.style,
+                    size: 56,
+                    color: colorScheme.outlineVariant,
+                  ),
+                  Text('No cards', style: theme.textTheme.titleMedium),
+                ],
+              ),
+            );
+          }
 
-          final card = cards[currentIndex];
+          if (_shuffled && _order.length != cards.length) {
+            _order = _newOrder(cards.length);
+          }
+          final card = cards[_shuffled ? _order[currentIndex] : currentIndex];
 
           return Padding(
             padding: .fromLTRB(screenMargin, 8, screenMargin, 0),
