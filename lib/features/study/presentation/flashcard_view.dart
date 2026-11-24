@@ -15,7 +15,7 @@ class FlashcardView extends ConsumerWidget {
   });
 
   final String? frontImage, backImage;
-  final String frontText, backText;
+  final String? frontText, backText;
 
   final _gestureController = GestureFlipCardController();
 
@@ -41,7 +41,7 @@ class FlashcardView extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     String? imageHash,
-    String text,
+    String? text,
   ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -75,13 +75,14 @@ class FlashcardView extends ConsumerWidget {
                       error: (_, _) => Icon(context.icons.brokenImage),
                       loading: () => const CircularProgressIndicator.adaptive(),
                     ),
-              Text(
-                text,
-                textAlign: .justify,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: .w500,
+              if (text != null)
+                Text(
+                  text,
+                  textAlign: .justify,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: .w500,
+                  ),
                 ),
-              ),
             ],
           ),
         ),

@@ -1,5 +1,5 @@
 import 'package:flas_/core/constants.dart';
-import 'package:flas_/core/widgets/clearable_text_field.dart';
+import 'package:flas_/features/decks/presentation/clearable_text_field.dart';
 import 'package:material_ui/material_ui.dart';
 
 class DeckInfoFields extends StatelessWidget {

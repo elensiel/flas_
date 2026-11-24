@@ -1,7 +1,7 @@
 import 'package:flas_/core/constants.dart';
 import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/core/widgets/app_popup_menu_button.dart';
-import 'package:flas_/core/widgets/clearable_text_field.dart';
+import 'package:flas_/features/decks/presentation/clearable_text_field.dart';
 import 'package:flas_/features/decks/presentation/card_draft.dart';
 import 'package:flas_/features/media/presentation/image_field.dart';
 import 'package:material_ui/material_ui.dart';
@@ -23,6 +23,19 @@ class CardEditor extends StatefulWidget {
 }
 
 class _CardEditorState extends State<CardEditor> {
+  final _termKey = GlobalKey<FormFieldState<String>>();
+  final _definitionKey = GlobalKey<FormFieldState<String>>();
+
+  String? _validateSide(String? text, String? image) =>
+      (text?.trim().isEmpty ?? true) && image == null
+      ? 'Add text or an image'
+      : null;
+
+  void _setImage(GlobalKey<FormFieldState<String>> key, VoidCallback assign) {
+    setState(assign);
+    if (key.currentState?.hasError ?? false) key.currentState!.validate();
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = Theme.of(context).colorScheme;
@@ -92,9 +105,15 @@ class _CardEditorState extends State<CardEditor> {
               ImageField(
                 hash: widget.card.frontImage,
                 heroTag: (widget.card, 'front'),
-                onChanged: (h) => setState(() => widget.card.frontImage = h),
+                onChanged: (h) =>
+                    _setImage(_termKey, () => widget.card.backImage = h),
               ),
-              _textField(widget.card.termController, 'Term'),
+              _textField(
+                _termKey,
+                widget.card.termController,
+                'Term',
+                () => widget.card.frontImage,
+              ),
             ],
           ),
           const Padding(padding: .symmetric(vertical: 16), child: Divider()),
@@ -105,9 +124,15 @@ class _CardEditorState extends State<CardEditor> {
               ImageField(
                 hash: widget.card.backImage,
                 heroTag: (widget.card, 'back'),
-                onChanged: (h) => setState(() => widget.card.backImage = h),
+                onChanged: (h) =>
+                    _setImage(_definitionKey, () => widget.card.backImage = h),
               ),
-              _textField(widget.card.definitionController, 'Definition'),
+              _textField(
+                _definitionKey,
+                widget.card.definitionController,
+                'Definition',
+                () => widget.card.backImage,
+              ),
             ],
           ),
         ],
@@ -115,12 +140,18 @@ class _CardEditorState extends State<CardEditor> {
     );
   }
 
-  Widget _textField(TextEditingController controller, String label) =>
-      ClearableTextField(
-        controller: controller,
-        label: label,
-        textAlign: .justify,
-        minLines: 1,
-        maxLines: 5,
-      );
+  Widget _textField(
+    GlobalKey<FormFieldState<String>> key,
+    TextEditingController controller,
+    String label,
+    String? Function() image,
+  ) => ClearableTextField(
+    fieldKey: key,
+    controller: controller,
+    label: label,
+    textAlign: .justify,
+    minLines: 1,
+    maxLines: 5,
+    validator: (value) => _validateSide(value, image()),
+  );
 }

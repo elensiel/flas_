@@ -1,20 +1,24 @@
 import 'package:material_ui/material_ui.dart';
 
-String? validator(String? value) =>
-    (value == null || value.trim().isEmpty) ? 'Required' : null;
+String? requiredText(String? value) =>
+    (value?.trim().isEmpty == true) ? 'Required' : null;
 
 class ClearableTextField extends StatelessWidget {
   const ClearableTextField({
     super.key,
+    this.fieldKey,
     required this.controller,
     required this.label,
+    this.validator = requiredText,
     this.minLines,
     this.maxLines,
     this.border,
     this.textAlign = .start,
   });
 
+  final GlobalKey<FormFieldState<String>>? fieldKey;
   final TextEditingController controller;
+  final FormFieldValidator<String> validator;
   final String label;
   final int? minLines;
   final int? maxLines;
@@ -27,7 +31,6 @@ class ClearableTextField extends StatelessWidget {
       valueListenable: controller,
       builder: (BuildContext context, value, _) => TextFormField(
         controller: controller,
-        validator: validator,
         minLines: minLines,
         maxLines: maxLines,
         textAlign: textAlign,
@@ -41,6 +44,7 @@ class ClearableTextField extends StatelessWidget {
                 )
               : null,
         ),
+        validator: validator,
       ),
     );
   }
