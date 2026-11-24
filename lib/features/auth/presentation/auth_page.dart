@@ -111,9 +111,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             keyboardType: .emailAddress,
             autofillHints: const [AutofillHints.email],
             decoration: const InputDecoration(labelText: 'Email'),
-            validator: (value) =>
-                RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
-                    .hasMatch((value ?? '').trim())
+            validator: (value) => (value?.isEmpty == true)
+                ? 'Required'
+                : RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
+                      .hasMatch((value ?? '').trim())
                 ? null
                 : 'Invalid email',
           ),
@@ -141,7 +142,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             },
             validator: _register
                 ? validateNewPassword
-                : (value) => (value == null) ? "Required" : null,
+                : (value) => (value?.isEmpty == true) ? "Required" : null,
           ),
           if (_register)
             ListenableBuilder(
@@ -164,7 +165,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
               autofillHints: const [AutofillHints.newPassword],
               decoration: const InputDecoration(labelText: 'Confirm Password'),
               validator: (value) =>
-                  value == _password.text ? null : 'Passwords does not match',
+                  value == _password.text ? null : 'Passwords do not match',
             ),
           if (_error != null)
             Text(
