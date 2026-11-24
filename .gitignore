@@ -52,5 +52,6 @@ android/build
 *.db
 *.db-shm
 *.db-wal
+*.tmp
 .dart_tool/
 env.json
