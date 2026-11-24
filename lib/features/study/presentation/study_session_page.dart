@@ -105,17 +105,12 @@ class _StudySessionPageState extends ConsumerState<StudySessionPage> {
                   cardCount: cards.length,
                 ),
                 Expanded(
-                  child: GestureDetector(
-                    behavior: .opaque,
-                    onHorizontalDragEnd: (details) =>
-                        _onSwipe(details, cards.length),
-                    child: FlashcardView(
-                      key: ValueKey(card.id),
-                      frontImage: card.frontImage,
-                      frontText: card.frontText,
-                      backImage: card.backImage,
-                      backText: card.backText,
-                    ),
+                  child: FlashcardView(
+                    key: ValueKey(card.id),
+                    frontImage: card.frontImage,
+                    frontText: card.frontText,
+                    backImage: card.backImage,
+                    backText: card.backText,
                   ),
                 ),
               ],

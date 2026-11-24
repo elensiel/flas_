@@ -1,12 +1,12 @@
 import 'package:flas_/core/constants.dart';
 import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/media/providers.dart';
-import 'package:flip_card/flip_card.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_flip_card/flutter_flip_card.dart';
 
 class FlashcardView extends ConsumerWidget {
-  const FlashcardView({
+  FlashcardView({
     super.key,
     this.frontImage,
     this.backImage,
@@ -17,14 +17,22 @@ class FlashcardView extends ConsumerWidget {
   final String? frontImage, backImage;
   final String frontText, backText;
 
+  final _gestureController = GestureFlipCardController();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: .all(screenMargin),
-      child: FlipCard(
-        fill: .fillBack,
-        front: _side(context, ref, frontImage, frontText),
-        back: _side(context, ref, backImage, backText),
+      child: GestureDetector(
+        onTap: () => _gestureController.flipcard(),
+        child: GestureFlipCard(
+          controller: _gestureController,
+          enableController: true,
+          animationDuration: context.motion.normal,
+          axis: .vertical,
+          frontWidget: _side(context, ref, frontImage, frontText),
+          backWidget: _side(context, ref, backImage, backText),
+        ),
       ),
     );
   }
