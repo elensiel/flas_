@@ -35,15 +35,6 @@ class _StudySessionPageState extends ConsumerState<StudySessionPage> {
     if (next >= 0 && next < length) setState(() => _cardIndex = next);
   }
 
-  void _onSwipe(DragEndDetails details, int cardCount) {
-    final velocity = details.primaryVelocity ?? 0;
-    if (velocity < -300) {
-      _move(1, cardCount);
-    } else if (velocity > 300) {
-      _move(-1, cardCount);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final cardsAsync = ref.watch(cardsProvider(widget.deck.id));
