@@ -5,6 +5,7 @@ import 'package:flas_/features/decks/data/card_repository.dart';
 import 'package:flas_/features/decks/data/deck_repository.dart';
 import 'package:flas_/features/sync/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 final deckRepositoryProvider = Provider(
   (ref) => DeckRepository(db: ref.watch(dbProvider)),
@@ -34,3 +35,16 @@ final cardsProvider = StreamProvider.family<List<Flashcard>, String>(
 final cardCountProvider = StreamProvider.family<int, String>(
   (ref, deckId) => ref.watch(cardRepositoryProvider).watchCardCount(deckId),
 );
+
+final deckSearchQueryProvider = StateProvider<String>((ref) => '');
+
+final filteredDecksProvider = Provider<AsyncValue<List<Deck>>>((ref) {
+  final query = ref.watch(deckSearchQueryProvider).trim().toLowerCase();
+  return ref
+      .watch(decksProvider)
+      .whenData(
+        (list) => query.isNotEmpty
+            ? list.where((d) => d.name.toLowerCase().contains(query)).toList()
+            : list,
+      );
+});
