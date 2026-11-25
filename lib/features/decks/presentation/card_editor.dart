@@ -1,10 +1,12 @@
 import 'package:flas_/core/constants.dart';
 import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/core/widgets/app_popup_menu_button.dart';
-import 'package:flas_/features/decks/presentation/clearable_text_field.dart';
 import 'package:flas_/features/decks/presentation/card_draft.dart';
+import 'package:flas_/features/decks/presentation/clearable_text_field.dart';
 import 'package:flas_/features/media/presentation/image_field.dart';
 import 'package:material_ui/material_ui.dart';
+
+enum _CardAction { swap, delete }
 
 class CardEditor extends StatefulWidget {
   const CardEditor({
@@ -26,40 +28,52 @@ class _CardEditorState extends State<CardEditor> {
   final _termKey = GlobalKey<FormFieldState<String>>();
   final _definitionKey = GlobalKey<FormFieldState<String>>();
 
-  String? _validateSide(String? text, String? image) =>
-      (text?.trim().isEmpty ?? true) && image == null
-      ? 'Add text or an image'
-      : null;
+  CardDraft get _card => widget.card;
 
-  void _setImage(GlobalKey<FormFieldState<String>> key, VoidCallback assign) {
+  String? _validateSide(String? text, String? image) {
+    final hasText = text?.trim().isNotEmpty ?? false;
+    return hasText || image != null ? null : 'Add text or an image';
+  }
+
+  void _setImage(
+    GlobalKey<FormFieldState<String>> textKey,
+    VoidCallback assign,
+  ) {
     setState(assign);
-    if (key.currentState?.hasError ?? false) key.currentState!.validate();
+    // Clears a stale "Add text or an image" error once an image is added.
+    if (textKey.currentState?.hasError ?? false) {
+      textKey.currentState!.validate();
+    }
+  }
+
+  void _onAction(_CardAction action) {
+    switch (action) {
+      case _CardAction.swap:
+        setState(_card.swap);
+      case _CardAction.delete:
+        widget.onDelete();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final s = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
     return Container(
       margin: .only(left: screenMargin, right: screenMargin, top: screenMargin),
       decoration: BoxDecoration(
-        color: s.surfaceContainerLow,
-        border: .all(color: s.outline, width: 1.5),
+        color: colors.surfaceContainerLow,
+        border: .all(color: colors.outline, width: 1.5),
         borderRadius: .circular(16),
       ),
       clipBehavior: .antiAlias,
       child: ExpansionTile(
-        shape: const Border(),
-        collapsedShape: const Border(),
-        controlAffinity: .leading,
-        initiallyExpanded: true,
-        maintainState: true, // allow validation on collapsed
-        childrenPadding: .all(16),
         title: Row(
           children: [
             Text(
               'Card ${widget.index + 1}',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: theme.textTheme.titleMedium,
             ),
             const Spacer(),
             ReorderableDragStartListener(
@@ -68,90 +82,82 @@ class _CardEditorState extends State<CardEditor> {
             ),
           ],
         ),
-        trailing: AppPopupMenuButton<String>(
-          itemBuilder: (context) => [
+        trailing: AppPopupMenuButton<_CardAction>(
+          icon: Icon(context.icons.moreVert),
+          itemBuilder: (_) => [
             PopupMenuItem(
-              value: 'swap',
+              value: _CardAction.swap,
               child: ListTile(
                 leading: Icon(context.icons.swapHoriz),
                 title: const Text('Swap'),
               ),
             ),
             PopupMenuItem(
-              value: 'delete',
+              value: _CardAction.delete,
               child: ListTile(
                 leading: Icon(context.icons.delete),
                 title: const Text('Delete'),
               ),
             ),
           ],
-          onSelected: (value) {
-            switch (value) {
-              case 'swap':
-                widget.card.swap();
-                break;
-              case 'delete':
-                widget.onDelete();
-                break;
-            }
-          },
-          icon: Icon(context.icons.moreVert),
+          onSelected: _onAction,
         ),
+        controlAffinity: .leading,
+        initiallyExpanded: true,
+        maintainState: true, // Keeps collapsed fields mounted so validation still reaches them.
+        shape: const Border(),
+        collapsedShape: const Border(),
+        childrenPadding: .all(16),
         children: [
-          Column(
-            spacing: 12,
-            crossAxisAlignment: .stretch,
-            children: [
-              ImageField(
-                hash: widget.card.frontImage,
-                heroTag: (widget.card, 'front'),
-                onChanged: (h) =>
-                    _setImage(_termKey, () => widget.card.backImage = h),
-              ),
-              _textField(
-                _termKey,
-                widget.card.termController,
-                'Term',
-                () => widget.card.frontImage,
-              ),
-            ],
+          _buildSide(
+            label: 'Term',
+            heroTag: (_card, 'front'),
+            textKey: _termKey,
+            controller: _card.termController,
+            image: () => _card.frontImage,
+            onImageChanged: (hash) =>
+                _setImage(_termKey, () => _card.frontImage = hash),
           ),
           const Padding(padding: .symmetric(vertical: 16), child: Divider()),
-          Column(
-            spacing: 12,
-            crossAxisAlignment: .stretch,
-            children: [
-              ImageField(
-                hash: widget.card.backImage,
-                heroTag: (widget.card, 'back'),
-                onChanged: (h) =>
-                    _setImage(_definitionKey, () => widget.card.backImage = h),
-              ),
-              _textField(
-                _definitionKey,
-                widget.card.definitionController,
-                'Definition',
-                () => widget.card.backImage,
-              ),
-            ],
+          _buildSide(
+            label: 'Definition',
+            heroTag: (_card, 'back'),
+            textKey: _definitionKey,
+            controller: _card.definitionController,
+            image: () => _card.backImage,
+            onImageChanged: (hash) =>
+                _setImage(_definitionKey, () => _card.backImage = hash),
           ),
         ],
       ),
     );
   }
 
-  Widget _textField(
-    GlobalKey<FormFieldState<String>> key,
-    TextEditingController controller,
-    String label,
-    String? Function() image,
-  ) => ClearableTextField(
-    fieldKey: key,
-    controller: controller,
-    label: label,
-    textAlign: .justify,
-    minLines: 1,
-    maxLines: 5,
-    validator: (value) => _validateSide(value, image()),
-  );
+  Widget _buildSide({
+    required String label,
+    required Object heroTag,
+    required GlobalKey<FormFieldState<String>> textKey,
+    required TextEditingController controller,
+    required String? Function() image,
+    required ValueChanged<String?> onImageChanged,
+  }) {
+    return Column(
+      spacing: 12,
+      crossAxisAlignment: .stretch,
+      children: [
+        ImageField(hash: image(), heroTag: heroTag, onChanged: onImageChanged),
+        ClearableTextField(
+          controller: controller,
+          label: label,
+          fieldKey: textKey,
+          // Reads the image when validating, not when building, so it is
+          // current right after _setImage.
+          validator: (value) => _validateSide(value, image()),
+          minLines: 1,
+          maxLines: 5,
+          textAlign: .justify,
+        ),
+      ],
+    );
+  }
 }

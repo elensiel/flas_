@@ -64,7 +64,7 @@ class ImageField extends ConsumerWidget {
   ) async {
     final action = await Navigator.of(context).push<ImageAction>(
       PageRouteBuilder(
-        opaque: false,
+        opaque: true,
         barrierColor: Colors.transparent,
         transitionDuration: context.motion.slow,
         reverseTransitionDuration: context.motion.normal,

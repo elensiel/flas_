@@ -1,50 +1,55 @@
+import 'package:flas_/core/theme/theme_context.dart';
 import 'package:material_ui/material_ui.dart';
 
-String? requiredText(String? value) =>
+String? requiredValidator(String? value) =>
     (value?.trim().isEmpty == true) ? 'Required' : null;
 
 class ClearableTextField extends StatelessWidget {
   const ClearableTextField({
     super.key,
-    this.fieldKey,
     required this.controller,
     required this.label,
-    this.validator = requiredText,
+    this.fieldKey,
+    this.validator = requiredValidator,
     this.minLines,
     this.maxLines,
-    this.border,
     this.textAlign = .start,
+    this.border,
   });
 
-  final GlobalKey<FormFieldState<String>>? fieldKey;
   final TextEditingController controller;
-  final FormFieldValidator<String> validator;
   final String label;
+  final GlobalKey<FormFieldState<String>>? fieldKey;
+  final FormFieldValidator<String> validator;
   final int? minLines;
   final int? maxLines;
-  final InputBorder? border;
   final TextAlign textAlign;
+  final InputBorder? border;
 
   @override
   Widget build(BuildContext context) {
+    // Rebuilds on every keystroke so the clear button appears and
+    // disappears with the text.
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
-      builder: (BuildContext context, value, _) => TextFormField(
+      builder: (_, value, _) => TextFormField(
+        key: fieldKey,
         controller: controller,
-        minLines: minLines,
-        maxLines: maxLines,
-        textAlign: textAlign,
+        autovalidateMode: .onUserInteraction,
         decoration: InputDecoration(
           labelText: label,
           border: border,
           suffixIcon: value.text.isNotEmpty
               ? IconButton(
                   onPressed: controller.clear,
-                  icon: const Icon(Icons.clear),
+                  icon: Icon(context.icons.clear),
                 )
               : null,
         ),
         validator: validator,
+        minLines: minLines,
+        maxLines: maxLines,
+        textAlign: textAlign,
       ),
     );
   }

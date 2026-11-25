@@ -31,6 +31,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
     required this.checkCircle,
     required this.shuffleOff,
     required this.shuffleOn,
+    required this.clear,
   });
 
   final IconData add,
@@ -39,6 +40,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
       brokenImage,
       cancel,
       checkCircle,
+      clear,
       create,
       delete,
       dragHandle,
@@ -69,6 +71,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
     brokenImage: Icons.broken_image_rounded,
     cancel: Icons.cancel_rounded,
     checkCircle: Icons.check_circle_rounded,
+    clear: Icons.clear_rounded,
     create: Icons.create_rounded,
     delete: Icons.delete_rounded,
     dragHandle: Icons.drag_handle_rounded,
@@ -100,6 +103,7 @@ class AppIcons extends ThemeExtension<AppIcons> {
     brokenImage: Icons.broken_image_outlined,
     cancel: Icons.cancel_outlined,
     checkCircle: Icons.check_circle_outlined,
+    clear: Icons.clear_outlined,
     create: Icons.create_outlined,
     delete: Icons.delete_outline,
     dragHandle: Icons.drag_handle_outlined,

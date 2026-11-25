@@ -1,11 +1,12 @@
 import 'package:flas_/core/constants.dart';
+import 'package:flas_/core/theme/theme_context.dart';
 import 'package:flas_/features/decks/domain/deck_form_data.dart';
 import 'package:flas_/features/decks/presentation/card_draft.dart';
 import 'package:flas_/features/decks/presentation/card_editor.dart';
 import 'package:flas_/features/decks/presentation/deck_info_fields.dart';
 import 'package:flas_/features/decks/providers.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 class DeckBuilderPage extends ConsumerStatefulWidget {
   const DeckBuilderPage({super.key, required this.deckId});
@@ -13,8 +14,7 @@ class DeckBuilderPage extends ConsumerStatefulWidget {
   final String? deckId;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _DeckBuilderPageState();
+  ConsumerState<DeckBuilderPage> createState() => _DeckBuilderPageState();
 }
 
 class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
@@ -100,6 +100,8 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
       _cards.remove(c);
       if (c.id != null) _removedIds.add(c.id!);
     });
+    // The removed editor still listens to the controllers until the next
+    // frame, so disposing immediately would throw.
     WidgetsBinding.instance.addPostFrameCallback((_) => c.dispose());
   }
 
@@ -118,7 +120,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
         actions: [
           IconButton(
             onPressed: _saving ? null : _submit,
-            icon: const Icon(Icons.save),
+            icon: Icon(context.icons.save),
           ),
         ],
       ),
@@ -127,15 +129,15 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
         key: _formKey,
         child: ReorderableListView(
           onReorderItem: _moveCard,
-          buildDefaultDragHandles: true,
 
           header: Column(
             children: [
               DeckInfoFields(name: _name, description: _description),
-              Divider(thickness: 3),
+              const Divider(thickness: 3),
             ],
           ),
 
+          // FAB clearance
           footer: SizedBox(
             height:
                 (Theme.of(context)
@@ -151,6 +153,8 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
           children: [
             for (int i = 0; i < _cards.length; i++)
               CardEditor(
+                // Keeps each editor's state attached to its card when
+                // the list is reordered.
                 key: ObjectKey(_cards[i]),
                 card: _cards[i],
                 index: i,

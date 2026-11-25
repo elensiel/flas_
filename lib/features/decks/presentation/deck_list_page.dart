@@ -1,10 +1,10 @@
 import 'package:flas_/core/constants.dart';
 import 'package:flas_/core/theme/theme_context.dart';
+import 'package:flas_/features/decks/presentation/deck_builder_page.dart';
 import 'package:flas_/features/decks/presentation/deck_tile.dart';
 import 'package:flas_/features/decks/providers.dart';
-import 'package:flas_/features/decks/presentation/deck_builder_page.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 class DeckListPage extends ConsumerWidget {
   const DeckListPage({super.key});
@@ -21,7 +21,9 @@ class DeckListPage extends ConsumerWidget {
           IconButton(
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => DeckBuilderPage(deckId: null)),
+              MaterialPageRoute(
+                builder: (_) => const DeckBuilderPage(deckId: null),
+              ),
             ),
             icon: Icon(context.icons.create),
           ),
@@ -48,7 +50,7 @@ class DeckListPage extends ConsumerWidget {
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => DeckBuilderPage(deckId: null),
+                          builder: (_) => const DeckBuilderPage(deckId: null),
                         ),
                       ),
                       icon: Icon(context.icons.add),
@@ -60,8 +62,8 @@ class DeckListPage extends ConsumerWidget {
             : ListView.separated(
                 padding: .all(screenMargin),
                 itemCount: list.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (_, i) => DeckTile(deck: list[i]),
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
               ),
         error: (e, _) => Center(child: Text('$e')),
         loading: () => const Center(child: CircularProgressIndicator()),
