@@ -37,7 +37,7 @@ Middleware supabaseAuth(String url, String publisherKey) {
 
   return (inner) => (req) async {
     final header = req.headers['authorization'] ?? '';
-    if (!header.startsWith('Bearer')) return Response(401);
+    if (!header.startsWith('Bearer ')) return Response(401);
 
     String? userId;
     try {
