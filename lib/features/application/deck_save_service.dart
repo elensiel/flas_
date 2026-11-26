@@ -66,6 +66,11 @@ class DeckSaveService {
     syncService.sync();
   }
 
+  Future<void> delete(String deckId) async {
+    await decks.deleteDeck(deckId);
+    syncService.sync();
+  }
+
   Future<void> _insert(String deckId, int position, CardData c) =>
       cards.createCard(
         deckId,
