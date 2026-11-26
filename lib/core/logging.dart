@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 
-void initlogging({Level level = .INFO}) {
+void initLogging({Level level = .INFO}) {
   Logger.root.level = level;
   Logger.root.onRecord.listen((log) {
     debugPrint(

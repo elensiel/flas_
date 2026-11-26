@@ -17,7 +17,7 @@ Future<void> main() async {
   assert(supabaseUrl.isNotEmpty, 'Missing SUPABASE_URL');
   assert(supabasePublishableKey.isNotEmpty, 'Missing SUPABASE_PUBLISHABLE_KEY');
 
-  initlogging();
+  initLogging();
   await Supabase.initialize(
     url: supabaseUrl,
     publishableKey: supabasePublishableKey,
