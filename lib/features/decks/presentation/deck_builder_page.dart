@@ -166,7 +166,7 @@ class _DeckBuilderPageState extends ConsumerState<DeckBuilderPage> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: _addCard,
-        child: const Icon(Icons.add),
+        child: Icon(context.icons.add),
       ),
     );
   }
