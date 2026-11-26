@@ -1,7 +1,7 @@
 import 'package:sqlite3/sqlite3.dart';
 
 Database openAppDatabase(String path) {
-  final db = sqlite3.open('flas_server.db');
+  final db = sqlite3.open(path);
   db.execute(_schema);
   return db;
 }
