@@ -5,8 +5,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_flip_card/flutter_flip_card.dart';
 
-class FlashcardView extends ConsumerWidget {
-  FlashcardView({
+class FlashcardView extends ConsumerStatefulWidget {
+  const FlashcardView({
     super.key,
     this.frontImage,
     this.backImage,
@@ -17,39 +17,38 @@ class FlashcardView extends ConsumerWidget {
   final String? frontImage, backImage;
   final String? frontText, backText;
 
+  @override
+  ConsumerState<FlashcardView> createState() => _FlashcardViewState();
+}
+
+class _FlashcardViewState extends ConsumerState<FlashcardView> {
   final _gestureController = GestureFlipCardController();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: .all(screenMargin),
       child: GestureDetector(
-        onTap: () => _gestureController.flipcard(),
+        onTap: _gestureController.flipcard,
         child: GestureFlipCard(
           controller: _gestureController,
           enableController: true,
           animationDuration: context.motion.normal,
           axis: .vertical,
-          frontWidget: _side(context, ref, frontImage, frontText),
-          backWidget: _side(context, ref, backImage, backText),
+          frontWidget: _side(widget.frontImage, widget.frontText),
+          backWidget: _side(widget.backImage, widget.backText),
         ),
       ),
     );
   }
 
-  Widget _side(
-    BuildContext context,
-    WidgetRef ref,
-    String? imageHash,
-    String? text,
-  ) {
+  Widget _side(String? imageHash, String? text) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Container(
       width: .infinity,
       decoration: BoxDecoration(
-        border: .all(color: colorScheme.outline, width: 1.5),
+        border: .all(color: theme.colorScheme.outline, width: 1.5),
         borderRadius: .circular(24),
       ),
       padding: const .all(20),
@@ -75,7 +74,7 @@ class FlashcardView extends ConsumerWidget {
                       error: (_, _) => Icon(context.icons.brokenImage),
                       loading: () => const CircularProgressIndicator.adaptive(),
                     ),
-              if (text != null)
+              if (text!.isNotEmpty == true)
                 Text(
                   text,
                   textAlign: .justify,
