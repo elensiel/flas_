@@ -62,9 +62,6 @@ class _StudySessionPageState extends ConsumerState<StudySessionPage> {
 
       body: cardsAsync.when(
         data: (cards) {
-          // ? i dont think we need this
-          // ? since we ensure that there is no empty deck
-          // ? upon creation
           if (cards.isEmpty) {
             return Center(
               child: Column(
