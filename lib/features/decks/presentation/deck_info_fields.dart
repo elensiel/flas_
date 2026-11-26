@@ -23,6 +23,7 @@ class DeckInfoFields extends StatelessWidget {
           ClearableTextField(
             controller: description,
             label: 'Description',
+            validator: (_) => null,
             minLines: 1,
             maxLines: 3,
           ),
