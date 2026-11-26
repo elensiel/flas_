@@ -32,7 +32,7 @@ class MediaStorage {
         return false;
       }
       await tmp.rename(dest.path);
-      return false;
+      return true;
     } catch (_) {
       if (tmp.existsSync()) await tmp.delete();
       rethrow;
