@@ -7,10 +7,10 @@ class PullResult {
     required this.cursor,
   });
 
-  final List<Map<String, Object>> decks, cards;
+  final List<Map<String, Object?>> decks, cards;
   final int cursor;
 
-  Map<String, Object> toJson() => {
+  Map<String, Object?> toJson() => {
     'decks': decks,
     'cards': cards,
     'cursor': cursor,
@@ -92,6 +92,12 @@ class SyncRepository {
         ]);
       }
       for (final c in cards) {
+        final exists = _db.select(
+          'SELECT 1 FROM decks WHERE user_id = ? AND id = ?',
+          [userId, c['deckId']],
+        ).isNotEmpty;
+        if (!exists) continue;
+
         _upsertCard.execute([
           userId,
           c['id'],

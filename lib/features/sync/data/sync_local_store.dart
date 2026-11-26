@@ -30,6 +30,7 @@ class SyncLocalStore {
     final local = await (db.select(
       db.decks,
     )..where((c) => c.id.equals(remote.id))).getSingleOrNull();
+
     if (local != null && local.updatedAt > remote.updatedAt) return;
     await db
         .into(db.decks)
@@ -37,6 +38,11 @@ class SyncLocalStore {
   }
 
   Future<void> applyRemoteCard(Flashcard remote) async {
+    final deck = await (db.select(
+      db.decks,
+    )..where((d) => d.id.equals(remote.deckId))).getSingleOrNull();
+    if (deck == null) return; // orphan, parent deck not synced
+
     final local = await (db.select(
       db.cards,
     )..where((c) => c.id.equals(remote.id))).getSingleOrNull();
