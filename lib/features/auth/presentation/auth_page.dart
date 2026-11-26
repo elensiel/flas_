@@ -58,6 +58,23 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
   }
 
+  void _toggleMode() => setState(() {
+    // cache typed fields
+    final emailTmp = _email.text;
+    final passwordTmp = _password.text;
+
+    // re apply typed fields
+    _register = !_register;
+    _formKey.currentState?.reset();
+    _email.text = emailTmp;
+    _password.text = passwordTmp;
+
+    // validate if user started filling up
+    if (emailTmp.isNotEmpty || passwordTmp.isNotEmpty) {
+      _formKey.currentState?.validate();
+    }
+  });
+
   @override
   Widget build(BuildContext context) {
     ref.listen(authProvider, (_, session) {
@@ -86,7 +103,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     spacing: 8,
     children: [
       Icon(
-        context.icons.warning, // todo change with app logo
+        context.icons.style,
         size: 56,
         color: Theme.of(context).colorScheme.outlineVariant,
       ),
@@ -107,9 +124,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         children: [
           TextFormField(
             controller: _email,
-            autovalidateMode: .onUserInteraction,
-            keyboardType: .emailAddress,
-            autofillHints: const [AutofillHints.email],
             decoration: const InputDecoration(labelText: 'Email'),
             validator: (value) => (value?.isEmpty == true)
                 ? 'Required'
@@ -117,10 +131,20 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                       .hasMatch((value ?? '').trim())
                 ? null
                 : 'Invalid email',
+            autovalidateMode: .onUserInteraction,
+            keyboardType: .emailAddress,
+            autofillHints: const [AutofillHints.email],
           ),
           TextFormField(
             controller: _password,
+            decoration: InputDecoration(
+              labelText: _register ? 'Set Password' : 'Password',
+            ),
+            validator: _register
+                ? validateNewPassword
+                : (value) => (value?.isEmpty == true) ? 'Required' : null,
             autovalidateMode: .onUserInteraction,
+            obscureText: true,
             maxLength: 72,
             buildCounter: (
               _, {
@@ -128,32 +152,28 @@ class _AuthPageState extends ConsumerState<AuthPage> {
               required isFocused,
               maxLength,
             }) => null,
-            obscureText: true,
             autofillHints: [
               _register ? AutofillHints.newPassword : AutofillHints.password,
             ],
-            decoration: InputDecoration(
-              labelText: _register ? 'Set Password' : 'Password',
-            ),
             onChanged: (_) {
               if (_register && _confirmPassword.text.isNotEmpty) {
                 _confirmPasswordKey.currentState?.validate();
               }
             },
-            validator: _register
-                ? validateNewPassword
-                : (value) => (value?.isEmpty == true) ? "Required" : null,
           ),
-          if (_register)
+          if (_register) ...[
             ListenableBuilder(
               listenable: _password,
               builder: (_, _) => PasswordRuleTiles(password: _password.text),
             ),
-          if (_register)
             TextFormField(
               key: _confirmPasswordKey,
               controller: _confirmPassword,
+              decoration: const InputDecoration(labelText: 'Confirm Password'),
+              validator: (value) =>
+                  value == _password.text ? null : 'Passwords do not match',
               autovalidateMode: .onUserInteraction,
+              obscureText: true,
               maxLength: 72,
               buildCounter: (
                 _, {
@@ -161,12 +181,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                 required isFocused,
                 maxLength,
               }) => null,
-              obscureText: true,
               autofillHints: const [AutofillHints.newPassword],
-              decoration: const InputDecoration(labelText: 'Confirm Password'),
-              validator: (value) =>
-                  value == _password.text ? null : 'Passwords do not match',
             ),
+          ],
           if (_error != null)
             Text(
               _error!,
@@ -192,21 +209,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             : Text(_register ? 'Register' : 'Sign In'),
       ),
       TextButton(
-        onPressed: () => setState(() {
-          // cache typed fields
-          final emailTmp = _email.text;
-          final passwordTmp = _password.text;
-
-          // re apply typed fields and validate again
-          _register = !_register;
-          _formKey.currentState?.reset();
-          _email.text = emailTmp;
-          _password.text = passwordTmp;
-          _formKey.currentState?.validate();
-        }),
+        onPressed: _toggleMode,
         child: Text(
           _register ? 'Have an account? Sign in' : 'No account? Register now.',
-          style: TextStyle(color: Colors.blueAccent),
+          style: const TextStyle(color: Colors.blueAccent),
         ),
       ),
     ],
